@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./backend
+    container_name: codesentinel-server
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - sentinel-network
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: codesentinel-client
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - sentinel-network
+    restart: unless-stopped
+
+networks:
+  sentinel-network:
+    driver: bridge
