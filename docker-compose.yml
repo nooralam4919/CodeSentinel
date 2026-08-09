@@ -1,31 +1,118 @@
 version: "3.9"
 
 services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: codesentinel-postgres
+
+    environment:
+      POSTGRES_DB: codesentinel
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    networks:
+      - sentinel-network
+
+    restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: codesentinel-pgadmin
+
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@pgadmin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+
+    ports:
+      - "8080:80"
+
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+    depends_on:
+      - postgres
+
+    networks:
+      - sentinel-network
+
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: codesentinel-redis
+
+    ports:
+      - "6379:6379"
+
+    volumes:
+      - redis_data:/data
+
+    networks:
+      - sentinel-network
+
+    restart: unless-stopped
+
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+
     container_name: codesentinel-server
+
     ports:
       - "4000:4000"
+
     volumes:
       - ./backend:/app
       - /app/node_modules
+
+    environment:
+      PORT: 4000
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/codesentinel
+      REDIS_URL: redis://redis:6379
+
+    depends_on:
+      - postgres
+      - redis
+
     networks:
       - sentinel-network
+
     restart: unless-stopped
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+
     container_name: codesentinel-client
+
     ports:
       - "3000:3000"
+
     volumes:
       - ./frontend:/app
       - /app/node_modules
+
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+
     depends_on:
       - backend
+
     networks:
       - sentinel-network
+
     restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  pgadmin_data:
 
 networks:
   sentinel-network:

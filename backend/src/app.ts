@@ -19,4 +19,19 @@ app.use(cookieParser()) // accessing user brouser cookie which is on server, for
 
 console.log("this is my app application ❌❌❌❌❌❌")
 
+
+
+
+// router
+
+import userRouter from "./routes/userRoutes/user.route.js";
+
+app.use("/api/v1/user", userRouter);
+
+
+
+
+
+
+
 export { app }

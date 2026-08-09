@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
+import Login from "./pages/Auth/Login.tsx";
 
 function App() {
   const [message, setMessage] = useState("");
@@ -12,10 +13,10 @@ function App() {
       });
   }, []);
 
-  return (
-    <>
-      <h1>React {message}</h1>
-    </>
+  return ( 
+     <>
+     <Login />
+     </>
   );
 }
 
