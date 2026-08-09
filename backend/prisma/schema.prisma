@@ -91,6 +91,7 @@ model User {
   scans          Scan[]
 
   githubAccount  GithubAccount?
+  accessToken    String?
   refreshTokens  RefreshToken[]
 }
 

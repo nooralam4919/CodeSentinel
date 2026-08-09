@@ -33,6 +33,7 @@ export default function RegisterForm({
             setLoading(true);
             await registerFunction(name, email, password);
         } catch (err: any) {
+            console.log(err.message)
             setError(err?.message || "Registration failed.");
         } finally {
             setLoading(false);
@@ -41,7 +42,7 @@ export default function RegisterForm({
 
     return (
         <form onSubmit={handleSubmit}>
-            <h1 className="mb-6 text-2xl font-bold">
+            <h1 className="mb-6 text-2xl font-bold text-red-600">
                 Create Account
             </h1>
 

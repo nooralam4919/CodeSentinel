@@ -1,70 +1,153 @@
 import { asyncHandler } from "../../utils/asynHandle.js";
 import prisma from "../../lib/prisma.js";
-import { hashedPassword } from "../../utils/password.js";
+import { comparePassword, hashedPassword } from "../../utils/password.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 import { ApiError } from "../../utils/ApiError.js";
+import { Request, Response } from "express";
+import {generateAccessToken, generateRefreshToken} from '../../utils/jwt.js'
+
+const generateAccessTokenAndRefreshToken = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  if (!user.email) {
+    throw new ApiError(400, "User email is missing");
+  }
+
+  const accessToken = generateAccessToken(user.id, user.email);
+
+  const refreshToken = generateRefreshToken(user.id);
+
+  return {
+    accessToken,
+    refreshToken,
+  };
+};
 
 const register = asyncHandler(async (req: any, res: any) => {
-  try {
-    const { name, email, password } = req.body;
+  const { name, email, password } = req.body;
+
+  if (!name || !email || !password) {
+    throw new ApiError(400, "All fields are required");
+  }
+
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (existingUser) {
+    throw new ApiError(409, "User already exists");
+  }
+
+  const encryptedPassword = await hashedPassword(password);
+
+  const user = await prisma.user.create({
+    data: {
+      name,
+      email,
+      password: encryptedPassword,
+    },
+  });
+
+  return res.status(201).json(
+    new ApiResponse(
+      201,
+      {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+      "User registered successfully"
+    )
+  );
+});
+
+const loginUser = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { email, password } = req.body;
 
     // Check fields
-    if (!name || !email || !password) {
-      throw new ApiError(400, "All fields are required");
+    if (!email) {
+      throw new ApiError(
+        400,
+        "Email is required"
+      );
     }
 
-    // Check existing user
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (existingUser) {
-      throw new ApiError(409, "User already exists");
+    if (!password) {
+      throw new ApiError(
+        400,
+        "Password is required"
+      );
     }
 
-    // Hash password
-    const encryptedPassword = await hashedPassword(password);
-
-    // Create user
-    const user = await prisma.user.create({
-      data: {
-        name,
+    // Find user
+    const user = await prisma.user.findUnique({
+      where: {
         email,
-        password: encryptedPassword,
       },
     });
 
-    // Send response
-    return res.status(201).json(
-      new ApiResponse(
-        201,
-        {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-        },
-        "User registered successfully"
-      )
-    );
-  } catch (error: any) {
-    console.error("Registration error:", error);
-
-    if (error instanceof ApiError) {
-      return res.status(error.statusCode).json({
-        statusCode: error.statusCode,
-        data: error.data,
-        message: error.message,
-        error: error.error,
-      });
+    // Check user
+    if (!user) {
+      throw new ApiError(401,"Invalid email or password"
+      );
     }
 
-    return res.status(500).json({
-      statusCode: 500,
-      data: null,
-      message: "Something went wrong",
-      error: [],
-    });
-  }
-});
+    // Check if user has password
+    if (!user.password) {
+      throw new ApiError(400,"This account does not have a password. Please login with GitHub."
+      );
+    }
 
-export { register };
+    // Check password
+    const isPasswordCorrect = await comparePassword( password, user.password);
+
+    if (!isPasswordCorrect) {
+      throw new ApiError(401,"Invalid email or password"
+      );
+    }
+
+    // Generate tokens
+    const tokens = await generateAccessTokenAndRefreshToken(user.id);
+
+    const accessToken = tokens.accessToken;
+    const refreshToken = tokens.refreshToken;
+
+    // Store access token
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        accessToken,
+      },
+    });
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          accessToken,
+          refreshToken,
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+          },
+        },
+        "User logged in successfully"
+      )
+    );
+  }
+);
+
+
+export { register, loginUser };
