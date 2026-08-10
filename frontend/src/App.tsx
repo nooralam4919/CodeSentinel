@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import Login from "./pages/Auth/Login.tsx";
 
 function App() {
   const [message, setMessage] = useState("");
@@ -10,13 +9,17 @@ function App() {
       .then((res) => res.json())
       .then((data) => {
         setMessage(data.message);
+      })
+      .catch((error) => {
+        console.error("Error connecting to backend:", error);
       });
   }, []);
 
-  return ( 
-     <>
-     <Login />
-     </>
+  return (
+    <div>
+      <h1>Frontend</h1>
+      <p>{message}</p>
+    </div>
   );
 }
 
