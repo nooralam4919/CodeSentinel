@@ -1,157 +1,159 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import type { FormEvent } from "react";
+import { useForm } from "react-hook-form";
 
-type LoginFormProps = {
+import Button from "../common/Button";
+import Input from "../common/Input";
+
+interface LoginFormProps {
     loginFunction: (email: string, password: string) => Promise<void>;
-};
+}
+
+interface LoginFormData {
+    email: string;
+    password: string;
+}
 
 export default function LoginForm({ loginFunction }: LoginFormProps) {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const { register, handleSubmit, formState: { errors, isSubmitting },} = useForm<LoginFormData>();
+
+    const onSubmit = async (data: LoginFormData) => {
         setError("");
 
-        if (!email.trim() || !password.trim()) {
-            setError("Please fill in all fields.");
-            return;
-        }
-
         try {
-            setLoading(true);
-            await loginFunction(email, password);
+            await loginFunction(data.email, data.password);
         } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : "Login failed.");
-        } finally {
-            setLoading(false);
+            setError(
+                err instanceof Error ? err.message : "Login failed."
+            );
         }
     };
 
     return (
         <div className="mx-auto w-full max-w-[400px]">
 
-            {/* ── Heading ── */}
+            {/* Heading */}
             <div className="mb-8">
                 <h1 className="text-[22px] font-semibold tracking-tight text-white">
                     Sign in to CodeSentinel
                 </h1>
+
                 <p className="mt-1.5 text-sm text-slate-500">
                     Welcome back. Enter your credentials to continue.
                 </p>
             </div>
 
-            {/* ── GitHub OAuth ── */}
-            <button
-                type="button"
-                className="mb-6 flex w-full items-center justify-center gap-2.5 rounded-lg border border-white/10 bg-white/[0.04] py-2.5 text-sm font-medium text-slate-300 transition hover:border-white/20 hover:bg-white/[0.07] hover:text-white active:scale-[0.99]"
-            >
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2Z" />
-                </svg>
-                Continue with GitHub
-            </button>
-
-            {/* ── Divider ── */}
-            <div className="mb-6 flex items-center gap-3">
-                <span className="h-px flex-1 bg-white/[0.06]" />
-                <span className="text-xs text-slate-600">or sign in with email</span>
-                <span className="h-px flex-1 bg-white/[0.06]" />
-            </div>
-
-            {/* ── Error banner ── */}
+            {/* Error */}
             {error && (
-                <div className="mb-5 flex items-start gap-2.5 rounded-lg border border-red-500/20 bg-red-500/8 px-3.5 py-3 text-sm text-red-400">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                        className="mt-0.5 shrink-0" aria-hidden="true">
-                        <circle cx="12" cy="12" r="10" /><path d="M12 8v4m0 4h.01" />
-                    </svg>
-                    <span>{error}</span>
+                <div className="mb-5 rounded-lg border border-red-500/20 bg-red-500/10 px-3.5 py-3 text-sm text-red-400">
+                    {error}
                 </div>
             )}
 
-            <form onSubmit={handleSubmit} noValidate>
+            <form onSubmit={handleSubmit(onSubmit)} noValidate>
+
                 {/* Email */}
                 <div className="mb-4">
-                    <label htmlFor="login-email" className="mb-1.5 block text-sm font-medium text-slate-300">
-                        Email address
-                    </label>
-                    <input
+                    <Input
                         id="login-email"
+                        label="Email address"
                         type="email"
+                        placeholder="Enter your email"
                         autoComplete="email"
-                        placeholder="you@company.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3.5 py-2.5 text-sm text-white placeholder:text-slate-600 outline-none transition focus:border-indigo-500/50 focus:bg-white/[0.05] focus:ring-2 focus:ring-indigo-500/20"
+                        className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3.5 py-2.5 text-sm text-white outline-none placeholder:text-slate-600 focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20"
+                        {...register("email", {
+                            required: "Email is required",
+                        })}
                     />
+
+                    {errors.email && (
+                        <p className="mt-1 text-xs text-red-400">
+                            {errors.email.message}
+                        </p>
+                    )}
                 </div>
 
                 {/* Password */}
                 <div className="mb-6">
+
                     <div className="mb-1.5 flex items-center justify-between">
-                        <label htmlFor="login-password" className="text-sm font-medium text-slate-300">
+                        <label
+                            htmlFor="login-password"
+                            className="text-sm font-medium text-slate-300"
+                        >
                             Password
                         </label>
-                        <Link to="/forgot-password"
-                            className="text-xs font-medium text-indigo-400 transition hover:text-indigo-300">
+
+                        <Link
+                            to="/forgot-password"
+                            className="text-xs font-medium text-indigo-400 hover:text-indigo-300"
+                        >
                             Forgot password?
                         </Link>
                     </div>
-                    <div className="flex items-center overflow-hidden rounded-lg border border-white/10 bg-white/[0.03] transition focus-within:border-indigo-500/50 focus-within:bg-white/[0.05] focus-within:ring-2 focus-within:ring-indigo-500/20">
-                        <input
+
+                    <div className="flex items-center overflow-hidden rounded-lg border border-white/10 bg-white/[0.03] focus-within:border-indigo-500/50 focus-within:ring-2 focus-within:ring-indigo-500/20">
+
+                        <Input
                             id="login-password"
                             type={showPassword ? "text" : "password"}
-                            autoComplete="current-password"
                             placeholder="Enter your password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="flex-1 bg-transparent px-3.5 py-2.5 text-sm text-white placeholder:text-slate-600 outline-none"
+                            autoComplete="current-password"
+                            className="flex-1 bg-transparent px-3.5 py-2.5 text-sm text-white outline-none placeholder:text-slate-600"
+                            {...register("password", {
+                                required: "Password is required",
+                            })}
                         />
-                        <button
+
+                        <Button
                             type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            aria-label={showPassword ? "Hide password" : "Show password"}
-                            className="px-3.5 text-xs font-semibold uppercase tracking-wide text-slate-500 transition hover:text-slate-200"
+                            onClick={() =>
+                                setShowPassword(!showPassword)
+                            }
+                            className="px-3.5 text-xs font-semibold uppercase tracking-wide text-slate-500 hover:text-slate-200"
                         >
                             {showPassword ? "Hide" : "Show"}
-                        </button>
+                        </Button>
+
                     </div>
+
+                    {errors.password && (
+                        <p className="mt-1 text-xs text-red-400">
+                            {errors.password.message}
+                        </p>
+                    )}
                 </div>
 
                 {/* Submit */}
-                <button
+                <Button
                     type="submit"
-                    disabled={loading}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-500 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition hover:bg-indigo-400 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+                    disabled={isSubmitting}
+                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-500 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                    {loading && (
-                        <span aria-hidden="true"
-                            className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                    )}
-                    {loading ? "Signing in…" : "Sign In"}
-                </button>
+                    {isSubmitting
+                        ? "Signing in..."
+                        : "Sign In"}
+                </Button>
+
             </form>
 
-            {/* Switch to register */}
+            {/* Register */}
             <div className="mt-4">
-                <p className="mb-3 text-center text-xs text-slate-600">Don't have an account?</p>
+                <p className="mb-3 text-center text-xs text-slate-600">
+                    Don't have an account?
+                </p>
+
                 <Link
                     to="/register"
-                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 py-2.5 text-sm font-medium text-slate-300 transition hover:border-white/20 hover:bg-white/[0.04] hover:text-white"
+                    className="flex w-full items-center justify-center rounded-lg border border-white/10 py-2.5 text-sm font-medium text-slate-300 hover:border-white/20 hover:bg-white/[0.04] hover:text-white"
                 >
                     Create a free account
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
                 </Link>
             </div>
+
         </div>
     );
 }

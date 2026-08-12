@@ -1,21 +1,21 @@
 import RegisterForm from "../../components/auth/RegisterForm";
-import { ShieldLogo } from "../../components/layout/Header";
+// import { ShieldLogo } from "../../components/layout/Header";
+import HomePage from "../Home/HomePage";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function Register() {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const {registerUser} = useAuth();
+
+
     const handleRegister = async (name: string, email: string, password: string) => {
-        const response = await fetch("http://localhost:4000/api/v1/user/register", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({ name, email, password }),
-        });
+        await registerUser(name, email, password);
+        navigate("/HomePage");
 
-        const data = await response.json();
-        // console.log("this the register data ", data);
-
-        if (!response.ok) {
-            throw new Error(data.message || "Registration failed");
-        }
     };
 
     return (
@@ -41,7 +41,7 @@ export default function Register() {
                 {/* Logo */}
                 <div className="relative flex items-center gap-2.5">
                     <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-500 shadow-lg shadow-indigo-500/30">
-                        <ShieldLogo size={18} />
+                        {/* <ShieldLogo size={18} /> */}
                     </span>
                     <span className="text-lg font-semibold tracking-tight">CodeSentinel</span>
                 </div>
@@ -105,7 +105,7 @@ export default function Register() {
                 {/* Mobile logo */}
                 <div className="mb-10 flex w-full max-w-[400px] items-center gap-2.5 lg:hidden">
                     <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500 shadow-lg shadow-indigo-500/30">
-                        <ShieldLogo size={16} />
+                        {/* <ShieldLogo size={16} /> */}
                     </span>
                     <span className="text-base font-semibold tracking-tight">CodeSentinel</span>
                 </div>
