@@ -1,20 +1,23 @@
 import RegisterForm from "../../components/auth/RegisterForm";
 // import { ShieldLogo } from "../../components/layout/Header";
 import HomePage from "../Home/HomePage";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 
+
 export default function Register() {
-    const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const {registerUser} = useAuth();
 
 
     const handleRegister = async (name: string, email: string, password: string) => {
-        await registerUser(name, email, password);
-        navigate("/HomePage");
+        try{
+            const userdata = await registerUser(name, email, password);
+            console.log(userdata)
+        }catch(error){
+            console.log(error);
+        }
 
     };
 

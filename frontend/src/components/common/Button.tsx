@@ -1,33 +1,35 @@
 import React from "react";
-import { useId } from "react";
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
-  className?: string;
+// 1. <input> is a void element
+
+// An <input> cannot have children
+
+{/* <input>
+  Sign In                 // ❌ Wrong:
+</input> */}
+
+
+{/* <input type="text" />          ✅ Correct: */}
+
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+    className?: string;
 }
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(({
-      label,
-      type = "text",
-      className = "",
-      ...props
-    },ref) => {
-        const id = useId();
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+    ({ className = "", children, type = "button", ...props }, ref) => {
         return (
-        <div>
-            {label && <label
-            htmlFor={id}
-            >{label}</label>}
-            <input
-            ref={ref}
-            type={type}
-            className={`px-4 py-2 ${className}`}
-            {...props}
-            id={id}
-            />
-        </div>
+            <button
+                ref={ref}
+                type={type}
+                className={className}
+                {...props}
+            >
+                {children}
+            </button>
         );
-  }
+    }
 );
 
-export default Input;
+Button.displayName = "Button";
+
+export default Button;

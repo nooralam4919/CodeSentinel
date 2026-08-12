@@ -8,7 +8,8 @@ export default function Login() {
     const { loginUser } = useAuth();
 
     const handleLogin = async ( email: string, password: string ) => {
-        await loginUser(email, password);
+        const user = await loginUser(email, password);
+        console.log(user)
         navigate("/HomePage");
     };
 

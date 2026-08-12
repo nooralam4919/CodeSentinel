@@ -69,7 +69,7 @@ const register = asyncHandler(async (req: any, res: any) => {
   );
 });
 
-const loginUser = asyncHandler(
+const login = asyncHandler(
   async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
@@ -150,4 +150,33 @@ const loginUser = asyncHandler(
 );
 
 
-export { register, loginUser };
+const findUser = asyncHandler(async (req: Request, res: Response) => {
+    const { userId } = req.body;
+
+    if (!userId) {
+        throw new ApiError(401, "User is not found");
+    }
+
+    const userInfo = await prisma.user.findUnique({
+        where: {
+            id: userId,
+        },
+    });
+
+    if (!userInfo) {
+        throw new ApiError(404, "User is not found");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            {
+                id: userInfo.id,
+            },
+            "User is found"
+        )
+    );
+});
+
+
+export { register, login, findUser };

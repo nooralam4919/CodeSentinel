@@ -1,8 +1,11 @@
 import { useDispatch } from "react-redux";
 import { login } from "../store/reducerSlice";
+import HomePage from "../pages/Home/HomePage";
+import { useNavigate } from "react-router-dom";
 
 export function useAuth() {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     // Login
     const loginUser = async (
@@ -25,12 +28,14 @@ export function useAuth() {
         );
 
         const data = await response.json();
+        console.log(data);
 
         if (!response.ok) {
             throw new Error(data.message || "Login failed");
         }
 
         dispatch(login(data));
+        navigate("/HomePage")
 
         return data;
     };
@@ -58,11 +63,14 @@ export function useAuth() {
         );
 
         const data = await response.json();
+        console.log("user is trying to register", data);
 
         if (!response.ok) {
             throw new Error(data.message || "Registration failed");
         }
         dispatch(login(data));
+        navigate("/HomePage")
+
         return data;
     };
 
