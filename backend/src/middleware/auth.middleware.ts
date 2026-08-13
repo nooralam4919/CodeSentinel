@@ -1,14 +1,24 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asynHandle.js";
 
 const verifyJWT = asyncHandler(
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
         const token = req.cookies?.accessToken;
 
+        console.log("ACCESS TOKEN:", token);
+
         if (!token) {
-            throw new ApiError(401, "Unauthorized request");
+            throw new ApiError(
+                401,
+                "Access token not found"
+            );
         }
 
         try {
@@ -22,10 +32,13 @@ const verifyJWT = asyncHandler(
             req.userId = decoded.id;
 
             next();
-        } catch {
-            throw new ApiError(401, "Invalid or expired access token");
+        } catch (error) {
+            throw new ApiError(
+                401,
+                "Invalid or expired access token"
+            );
         }
     }
 );
 
-export { verifyJWT };   
+export { verifyJWT };

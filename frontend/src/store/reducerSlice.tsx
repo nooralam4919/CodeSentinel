@@ -11,7 +11,9 @@ const authSlice = createSlice({
     reducers: {
         login: (state, action) => {
             state.status = true;
-            state.userData = action.payload.userData
+            // BUG FIX: was action.payload.userData which doesn't exist.
+            // useAuth now dispatches the user object directly as the payload.
+            state.userData = action.payload;
         },
         logout: (state) => {
             state.status = false;

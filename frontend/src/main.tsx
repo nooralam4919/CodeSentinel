@@ -10,6 +10,7 @@ import HomePage from "./pages/Home/HomePage.tsx";
 import Login from "./pages/Auth/Login.tsx";
 import Register from "./pages/Auth/Register.tsx";
 import Protection from "./components/AuthtProtection.tsx";
+import Dashboard from "./components/layout/DashboardLayout.tsx";
 
 // BUG FIX: Provider must wrap the entire app here so that App.tsx can safely
 // call useDispatch() — hooks only work inside descendants of <Provider>.
@@ -23,7 +24,6 @@ const router = createBrowserRouter([
             {
                 path: "/",
                 element: (
-                    // authentication={true} → only logged-in users can access
                     <Protection authentication={true}>
                         <HomePage />
                     </Protection>
@@ -32,7 +32,6 @@ const router = createBrowserRouter([
             {
                 path: "/login",
                 element: (
-                    // authentication={false} → only guests can access (redirect if logged in)
                     <Protection authentication={false}>
                         <Login />
                     </Protection>
@@ -46,6 +45,14 @@ const router = createBrowserRouter([
                     </Protection>
                 ),
             },
+            {
+                path: '/dashboard',
+                element: (
+                    <Protection authentication={true}>
+                        <Dashboard />
+                    </Protection>
+                )
+            }
         ],
     },
 ]);

@@ -121,62 +121,80 @@ const login = asyncHandler(
     const accessToken = tokens.accessToken;
     const refreshToken = tokens.refreshToken;
 
-    // Store access token
+    // Store access token in DB
     await prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        accessToken,
-      },
+      where: { id: user.id },
+      data: { accessToken },
     });
 
-    return res.status(200).json(
-      new ApiResponse(
-        200,
-        {
-          accessToken,
-          refreshToken,
-          user: {
-            id: user.id,
-            name: user.name,
-            email: user.email,
+    // Set tokens as HTTP-only cookies so the browser sends them
+    // automatically on every request with credentials: "include".
+    // Without this, App.tsx calling /me has no token to send → 401.
+    const cookieOptions = {
+      httpOnly: true,   // not accessible via JS — prevents XSS token theft
+      secure: process.env.NODE_ENV === "production", // HTTPS only in prod
+      sameSite: "lax" as const,
+      maxAge: 24 * 60 * 60 * 1000, // 1 day in ms
+    };
+
+    return res
+      .status(200)
+      .cookie("accessToken", accessToken, cookieOptions)
+      .cookie("refreshToken", refreshToken, {
+        ...cookieOptions,
+        maxAge: 10 * 24 * 60 * 60 * 1000, // 10 days in ms
+      })
+      .json(
+        new ApiResponse(
+          200,
+          {
+            user: {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+            },
           },
-        },
-        "User logged in successfully"
-      )
-    );
+          "User logged in successfully"
+        )
+      );
   }
 );
 
 
-const findUser = asyncHandler(async (req: Request, res: Response) => {
-    const { userId } = req.body;
+const findUser = asyncHandler(
+    async (req: Request, res: Response) => {
 
-    if (!userId) {
-        throw new ApiError(401, "User is not found");
-    }
+        const userId = req.userId;
 
-    const userInfo = await prisma.user.findUnique({
-        where: {
-            id: userId,
-        },
-    });
+        if (!userId) {
+            throw new ApiError(
+                401,
+                "User is not authenticated"
+            );
+        }
 
-    if (!userInfo) {
-        throw new ApiError(404, "User is not found");
-    }
-
-    return res.status(200).json(
-        new ApiResponse(
-            200,
-            {
-                id: userInfo.id,
+        const userInfo = await prisma.user.findUnique({
+            where: {
+                id: userId,
             },
-            "User is found"
-        )
-    );
-});
+        });
+
+        if (!userInfo) {
+            throw new ApiError(
+                404,
+                "User not found"
+            );
+        }
+
+        return res.status(200).json(
+            new ApiResponse(
+                200,
+                userInfo,
+                "User found successfully"
+            )
+        );
+    }
+);
 
 
 export { register, login, findUser };

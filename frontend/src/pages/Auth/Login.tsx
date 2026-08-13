@@ -1,16 +1,13 @@
 import LoginForm from "../../components/auth/LoginForm";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 
 export default function Login() {
-    const navigate = useNavigate();
 
     const { loginUser } = useAuth();
 
     const handleLogin = async ( email: string, password: string ) => {
         const user = await loginUser(email, password);
         console.log(user)
-        navigate("/HomePage");
     };
 
     return (

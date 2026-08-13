@@ -26,18 +26,30 @@ function App() {
                     }
                 );
 
-                if (!response.ok) {
-                    throw new Error("Not authenticated");
-                }
-
                 const data = await response.json();
 
+                console.log("ME RESPONSE:", response.status, data);
+
+                if (!response.ok) {
+                    throw new Error(
+                        data.message || "Not authenticated"
+                    );
+                }
+
+                // User is authenticated
                 dispatch(login(data.data));
+
+                // If user is on login/register,
+                // redirect to home
+                if (AUTH_ROUTES.includes(location.pathname)) {
+                    navigate("/");
+                }
             } catch (error) {
+                console.log("Authentication failed:", error);
+
                 dispatch(logout());
 
-                // If user is not authenticated,
-                // redirect protected routes to login.
+                // Only redirect if user is on a protected route
                 if (!AUTH_ROUTES.includes(location.pathname)) {
                     navigate("/login");
                 }
@@ -47,9 +59,11 @@ function App() {
         };
 
         checkAuth();
-    }, [dispatch, navigate, location.pathname]);
 
-    // Show loading screen while checking authentication
+        // IMPORTANT:
+        // Do not put location.pathname in dependency array.
+    }, [dispatch, navigate]);
+
     if (loading) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-[#0a0d17]">

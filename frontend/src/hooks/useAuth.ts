@@ -1,6 +1,5 @@
 import { useDispatch } from "react-redux";
 import { login } from "../store/reducerSlice";
-import HomePage from "../pages/Home/HomePage";
 import { useNavigate } from "react-router-dom";
 
 export function useAuth() {
@@ -28,14 +27,19 @@ export function useAuth() {
         );
 
         const data = await response.json();
+
         console.log(data);
 
         if (!response.ok) {
             throw new Error(data.message || "Login failed");
         }
 
-        dispatch(login(data));
-        navigate("/HomePage")
+        // data.data.user is the user object returned by the backend
+        // Passing the full `data` object would store the entire API
+        // response shape in Redux instead of just the user
+        dispatch(login(data.data.user));
+
+        navigate("/");
 
         return data;
     };
@@ -63,13 +67,19 @@ export function useAuth() {
         );
 
         const data = await response.json();
+
         console.log("user is trying to register", data);
 
         if (!response.ok) {
-            throw new Error(data.message || "Registration failed");
+            throw new Error(
+                data.message || "Registration failed"
+            );
         }
-        dispatch(login(data));
-        navigate("/HomePage")
+
+        // same as login — dispatch only the user object, not the full response
+        dispatch(login(data.data));
+
+        navigate("/");
 
         return data;
     };
