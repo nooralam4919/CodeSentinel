@@ -31,10 +31,13 @@ console.log("this is my app application ❌❌❌❌❌❌");
 
 
 // router
-
 import userRouter from "./routes/userRoutes/user.route.js";
 
 app.use("/api/v1/user", userRouter);
+
+// GitHub OAuth routes — /auth/github and /auth/github/callback
+import githubRouter from "./routes/githubRoutes/github.route.js";
+app.use("/auth", githubRouter);
 
 
 // Global error handler

@@ -197,4 +197,16 @@ const findUser = asyncHandler(
 );
 
 
-export { register, login, findUser };
+const githubLogin = asyncHandler(async(req: Request, res: Response) => {
+  
+  res.status(200).json(
+    new ApiResponse(
+      300,
+      {},
+      "got github resposnse"
+    )
+  )
+})
+
+
+export { register, login, findUser, githubLogin };

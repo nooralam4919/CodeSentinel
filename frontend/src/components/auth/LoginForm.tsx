@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 
 import Button from "../common/Button";
 import Input from "../common/Input";
+import GithubLogin from "../../pages/Auth/GithubLogIn";
 
 interface LoginFormProps {
     loginFunction: (email: string, password: string) => Promise<void>;
@@ -52,6 +53,16 @@ export default function LoginForm({ loginFunction }: LoginFormProps) {
                     {error}
                 </div>
             )}
+
+            {/* GitHub OAuth */}
+            <GithubLogin />
+
+            {/* Divider */}
+            <div className="mb-5 flex items-center gap-3">
+                <span className="h-px flex-1 bg-white/[0.06]" />
+                <span className="text-xs text-slate-600">or continue with email</span>
+                <span className="h-px flex-1 bg-white/[0.06]" />
+            </div>
 
             <form onSubmit={handleSubmit(onSubmit)} noValidate>
 

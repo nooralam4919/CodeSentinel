@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, type JSX } from "react";
 import { Link } from "react-router-dom";
 import Button from "../common/Button.tsx";
 import Input from "../common/Input.tsx";
 import { useForm } from "react-hook-form";
+import GithubLogin from "../../pages/Auth/GithubLogIn.tsx";
 
 type RegisterFormData = {
   name: string;
@@ -10,6 +11,7 @@ type RegisterFormData = {
   password: string;
   confirmPassword: string;
 };
+
 
 type RegisterFormProps = {
   registerFunction: ( name: string, email: string, password: string) => Promise<void>;
@@ -56,6 +58,7 @@ export default function RegisterForm({registerFunction,}: RegisterFormProps) {
     }
   };
 
+
   return (
     <div className="mx-auto w-full max-w-[400px]">
 
@@ -71,12 +74,7 @@ export default function RegisterForm({registerFunction,}: RegisterFormProps) {
       </div>
 
       {/* GitHub */}
-      <Button
-        type="button"
-        className="mb-6 flex w-full items-center justify-center gap-2.5 rounded-lg border border-white/10 bg-white/[0.04] py-2.5 text-sm font-medium text-slate-300 transition hover:border-white/20 hover:bg-white/[0.07] hover:text-white"
-      >
-        Continue with GitHub
-      </Button>
+      <GithubLogin />
 
       {/* Divider */}
       <div className="mb-6 flex items-center gap-3">
