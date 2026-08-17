@@ -1,6 +1,5 @@
 import RegisterForm from "../../components/auth/RegisterForm";
 // import { ShieldLogo } from "../../components/layout/Header";
-import HomePage from "../Home/HomePage";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 

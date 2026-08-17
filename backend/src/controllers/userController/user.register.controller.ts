@@ -5,6 +5,8 @@ import { ApiResponse } from "../../utils/ApiResponse.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { Request, Response } from "express";
 import {generateAccessToken, generateRefreshToken} from '../../utils/jwt.js'
+import {uploadOnCloudinay} from '../../utils/cloudnary.js'
+
 
 const generateAccessTokenAndRefreshToken = async (userId: string) => {
   const user = await prisma.user.findUnique({
@@ -127,9 +129,7 @@ const login = asyncHandler(
       data: { accessToken },
     });
 
-    // Set tokens as HTTP-only cookies so the browser sends them
-    // automatically on every request with credentials: "include".
-    // Without this, App.tsx calling /me has no token to send → 401.
+  
     const cookieOptions = {
       httpOnly: true,   // not accessible via JS — prevents XSS token theft
       secure: process.env.NODE_ENV === "production", // HTTPS only in prod
@@ -209,4 +209,57 @@ const githubLogin = asyncHandler(async(req: Request, res: Response) => {
 })
 
 
-export { register, login, findUser, githubLogin };
+
+const uploadFile = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.userId;
+
+    if (!userId) {
+        throw new ApiError(401, "User is not authenticated");
+    }
+
+    const findUser = await prisma.user.findUnique({
+        where: {
+            id: userId,
+        },
+    });
+
+    if (!findUser) {
+        throw new ApiError(400, "User ID is not found");
+    }
+
+    const files = req.files as {
+        [fieldname: string]: Express.Multer.File[];
+    };
+
+    console.log("FILES RECEIVED:", files);
+
+    const receivedFile = files?.downlodedFile?.[0]?.path;
+
+    if (!receivedFile) {
+        throw new ApiError(400, "No file uploaded");
+    }
+
+    console.log("FILE PATH:", receivedFile);
+
+    const uploadedFile = await uploadOnCloudinay(receivedFile);
+
+    if (!uploadedFile) {
+        throw new ApiError(
+            500,
+            "File upload to Cloudinary failed"
+        );
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            {
+                userId,
+                file: uploadedFile,
+            },
+            "File has been uploaded successfully"
+        )
+    );
+});
+
+export { register, login, findUser, githubLogin, uploadFile };

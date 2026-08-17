@@ -1,26 +1,36 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+    createBrowserRouter,
+    RouterProvider,
+} from "react-router-dom";
+
 import { Provider } from "react-redux";
 
 import "./index.css";
-import store from "./store/store.tsx";
-import App from "./App.tsx";
-import HomePage from "./pages/Home/HomePage.tsx";
-import Login from "./pages/Auth/Login.tsx";
-import Register from "./pages/Auth/Register.tsx";
-import Protection from "./components/AuthtProtection.tsx";
-import Dashboard from "./components/layout/DashboardLayout.tsx";
 
-// BUG FIX: Provider must wrap the entire app here so that App.tsx can safely
-// call useDispatch() — hooks only work inside descendants of <Provider>.
-// Having Provider inside App.tsx's return() was too late; the hook ran first.
+import store from "./store/store";
+import App from "./App";
+
+import HomePage from "./pages/Home/HomePage";
+import Login from "./pages/Auth/Login";
+import Register from "./pages/Auth/Register";
+
+import Protection from "./components/AuthtProtection";
+import Dashboard from "./components/layout/DashboardLayout";
+
+import Features from "./pages/Features/Features";
+import Docs from "./pages/Docs/Docs";
+
 
 const router = createBrowserRouter([
     {
         path: "/",
         element: <App />,
+
         children: [
+
+            // HOME
             {
                 path: "/",
                 element: (
@@ -29,6 +39,20 @@ const router = createBrowserRouter([
                     </Protection>
                 ),
             },
+
+            // FEATURES
+            {
+                path: "/features",
+                element: <Features />,
+            },
+
+            // DOCS
+            {
+                path: "/docs",
+                element: <Docs />,
+            },
+
+            // LOGIN
             {
                 path: "/login",
                 element: (
@@ -37,6 +61,8 @@ const router = createBrowserRouter([
                     </Protection>
                 ),
             },
+
+            // REGISTER
             {
                 path: "/register",
                 element: (
@@ -45,19 +71,25 @@ const router = createBrowserRouter([
                     </Protection>
                 ),
             },
+
+            // DASHBOARD
             {
-                path: '/dashboard',
+                path: "/dashboard",
                 element: (
                     <Protection authentication={true}>
                         <Dashboard />
                     </Protection>
-                )
-            }
+                ),
+            },
+
         ],
     },
 ]);
 
-createRoot(document.getElementById("root")!).render(
+
+createRoot(
+    document.getElementById("root")!
+).render(
     <StrictMode>
         <Provider store={store}>
             <RouterProvider router={router} />

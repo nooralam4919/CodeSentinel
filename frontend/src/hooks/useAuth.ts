@@ -33,10 +33,7 @@ export function useAuth() {
         if (!response.ok) {
             throw new Error(data.message || "Login failed");
         }
-
-        // data.data.user is the user object returned by the backend
-        // Passing the full `data` object would store the entire API
-        // response shape in Redux instead of just the user
+        
         dispatch(login(data.data.user));
 
         navigate("/");
