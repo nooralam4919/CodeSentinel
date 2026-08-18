@@ -12,7 +12,7 @@ router.route("/me").get(verifyJWT, findUser);
 router.route("/upload").post(verifyJWT, upload.fields([
     {
         name: "downlodedFile",
-        maxCount: 1
+        maxCount: 1,
     }
 ]), uploadFile);
 
