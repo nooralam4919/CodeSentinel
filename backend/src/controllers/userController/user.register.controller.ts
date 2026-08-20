@@ -6,6 +6,7 @@ import { ApiError } from "../../utils/ApiError.js";
 import { Request, Response } from "express";
 import {generateAccessToken, generateRefreshToken} from '../../utils/jwt.js'
 import {uploadOnCloudinay} from '../../utils/cloudnary.js'
+import {parseWithDocling} from "../../services/Docling.service.js"
 
 
 const generateAccessTokenAndRefreshToken = async (userId: string) => {
@@ -231,9 +232,14 @@ const uploadFile = asyncHandler(async (req: Request, res: Response) => {
         [fieldname: string]: Express.Multer.File[];
     };
 
+
     console.log("FILES RECEIVED:", files);
 
     const receivedFile = files?.downlodedFile?.[0]?.path;
+
+    const fileToDocling = await parseWithDocling(receivedFile);
+
+        console.log("this is the file and the url", receivedFile, userId); 
 
     if (!receivedFile) {
         throw new ApiError(400, "No file uploaded");
@@ -250,12 +256,16 @@ const uploadFile = asyncHandler(async (req: Request, res: Response) => {
         );
     }
 
+    
+
     return res.status(200).json(
         new ApiResponse(
             200,
             {
                 userId,
                 file: uploadedFile,
+                receivedFile
+
             },
             "File has been uploaded successfully"
         )
