@@ -70,19 +70,15 @@ services:
 
 
   # =========================
-  # Docling Python Service
+  # Docling Serve
   # =========================
   docling:
-    build:
-      context: ./docling-service
+    image: quay.io/docling-project/docling-serve
 
     container_name: codesentinel-docling
 
     ports:
-      - "8000:8000"
-
-    volumes:
-      - ./docling-service:/app
+      - "5001:5001"
 
     networks:
       - sentinel-network
@@ -113,7 +109,7 @@ services:
 
       REDIS_URL: redis://redis:6379
 
-      DOCLING_URL: http://docling:8000
+      DOCLING_URL: http://docling:5001
 
       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}

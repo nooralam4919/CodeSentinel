@@ -11,7 +11,7 @@ const FileUpload = () => {
             {
                 method: "POST",
                 credentials: "include",
-            body: formData,
+                body: formData,
             }
         );
 

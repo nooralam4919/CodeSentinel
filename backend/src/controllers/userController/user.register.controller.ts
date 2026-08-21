@@ -236,10 +236,15 @@ const uploadFile = asyncHandler(async (req: Request, res: Response) => {
     console.log("FILES RECEIVED:", files);
 
     const receivedFile = files?.downlodedFile?.[0]?.path;
-
+    // sending it do docling for the md file
     const fileToDocling = await parseWithDocling(receivedFile);
+    const markdown = fileToDocling.document?.md_content || "";
 
-        console.log("this is the file and the url", receivedFile, userId); 
+    console.log("MARKDOWN:", markdown);
+    
+
+
+    console.log("this is the file and the url", receivedFile, userId); 
 
     if (!receivedFile) {
         throw new ApiError(400, "No file uploaded");

@@ -1,28 +1,52 @@
-import fs from "fs"
-import FromData from "form-data"
-import axios from "axios"
-import { ApiError } from "../utils/ApiError.js"
+import fs from "node:fs";
+import path from "node:path";
+import { ApiError } from "../utils/ApiError.js";
 
-export const parseWithDocling = async(filePath : string) => {
+export const parseWithDocling = async (filePath: string) => {
+    if (!filePath) {
+        throw new ApiError(400, "File path is missing");
+    }
 
-    const formData = new FromData();
+    const SERVER_URL =
+        process.env.DOCLING_URL || "http://localhost:5001";
 
-    if(!filePath)
-        throw new ApiError(200, "file is not reached to docling srvies")
+    const fileBuffer = fs.readFileSync(filePath);
+    const fileName = path.basename(filePath);
+
+    const formData = new FormData();
 
     formData.append(
-        "file",
-        fs.createReadStream(filePath)
-    )
+        "files",
+        new Blob([fileBuffer]),
+        fileName
+    );
 
-    const response = await axios.post(
-        `${process.env.DOCLING_URL}/parse`,
-        formData,
+    console.log("Sending file to Docling...");
+
+    const response = await fetch(
+        `${SERVER_URL}/v1/convert/file`,
         {
-            headers: formData.getHeaders()
+            method: "POST",
+            body: formData,
         }
-    )
+    );
 
-    return response.data
-    
-}
+    console.log("Docling status:", response.status);
+
+    if (!response.ok) {
+        const error = await response.text();
+
+        console.error("Docling error:", error);
+
+        throw new ApiError(
+            response.status,
+            "Docling service failed"
+        );
+    }
+
+    const result = await response.json();
+
+    console.log("Docling conversion successful");
+
+    return result;
+};
