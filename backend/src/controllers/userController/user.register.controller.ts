@@ -7,6 +7,7 @@ import { Request, Response } from "express";
 import {generateAccessToken, generateRefreshToken} from '../../utils/jwt.js'
 import {uploadOnCloudinay} from '../../utils/cloudnary.js'
 import {parseWithDocling} from "../../services/Docling.service.js"
+import {chunkMarkdown} from "../../services/Chunking.service.js"
 
 
 const generateAccessTokenAndRefreshToken = async (userId: string) => {
@@ -237,10 +238,15 @@ const uploadFile = asyncHandler(async (req: Request, res: Response) => {
 
     const receivedFile = files?.downlodedFile?.[0]?.path;
     // sending it do docling for the md file
-    const fileToDocling = await parseWithDocling(receivedFile);
-    const markdown = fileToDocling.document?.md_content || "";
+    // const fileToDocling = await parseWithDocling(receivedFile);
+    // const markdown = fileToDocling.document?.md_content || "";
 
-    console.log("MARKDOWN:", markdown);
+    // console.log("MARKDOWN:", markdown);
+
+
+    // // sending for the chuncking
+    // const chunking = await chunkMarkdown(markdown);
+    // console.log(chunking)
     
 
 

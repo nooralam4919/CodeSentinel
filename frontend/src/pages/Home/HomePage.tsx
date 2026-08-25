@@ -3,6 +3,7 @@ import Button from "../../components/common/Button";
 import { useState } from "react";
 import ImportFileModal from "../ImportFIle/ImportFileModal.tsx"
 import { useNavigate } from "react-router-dom";
+import SelectRepository from "../../../src/components/auth/SelectRepository.tsx";
 
 const features = [
     {
@@ -54,6 +55,7 @@ const stats = [
 
 export default function HomePage() {
     const [showuploadModel, setShowuploadModel] = useState(true);
+    const [showRepositoryModal, setShowRepositoryModal] = useState(true);
     const navigatin = useNavigate();
     return (
         <main className="relative min-h-screen overflow-hidden bg-[#0a0d17] text-white">
@@ -276,11 +278,17 @@ export default function HomePage() {
                 </div>
             </section>
 
-            {showuploadModel && (
+            {/* {showuploadModel && (
         <ImportFileModal
           onClose={() => setShowuploadModel(false)}
         />
-      )}
+      )} */}
+
+      {showRepositoryModal && (
+        <SelectRepository
+            onClose={() => setShowRepositoryModal(false)}
+        />
+    )}
 
         </main>
     );

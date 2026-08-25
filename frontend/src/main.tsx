@@ -18,9 +18,10 @@ import Register from "./pages/Auth/Register";
 
 import Protection from "./components/AuthtProtection";
 import Dashboard from "./components/layout/DashboardLayout";
-
+import SelectRepository from "../src/components/auth/SelectRepository";
 import Features from "./pages/Features/Features";
 import Docs from "./pages/Docs/Docs";
+
 
 
 const router = createBrowserRouter([
@@ -81,6 +82,8 @@ const router = createBrowserRouter([
                     </Protection>
                 ),
             },
+            {
+        },
 
         ],
     },

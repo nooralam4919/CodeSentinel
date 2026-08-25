@@ -1,8 +1,6 @@
-services:
+version: "3.9"
 
-  # =========================
-  # PostgreSQL + pgvector
-  # =========================
+services:
   postgres:
     image: pgvector/pgvector:pg17
     container_name: codesentinel-postgres
@@ -23,10 +21,6 @@ services:
 
     restart: unless-stopped
 
-
-  # =========================
-  # pgAdmin
-  # =========================
   pgadmin:
     image: dpage/pgadmin4
     container_name: codesentinel-pgadmin
@@ -49,10 +43,6 @@ services:
 
     restart: unless-stopped
 
-
-  # =========================
-  # Redis
-  # =========================
   redis:
     image: redis:7-alpine
     container_name: codesentinel-redis
@@ -68,27 +58,6 @@ services:
 
     restart: unless-stopped
 
-
-  # =========================
-  # Docling Serve
-  # =========================
-  docling:
-    image: quay.io/docling-project/docling-serve
-
-    container_name: codesentinel-docling
-
-    ports:
-      - "5001:5001"
-
-    networks:
-      - sentinel-network
-
-    restart: unless-stopped
-
-
-  # =========================
-  # Node.js Backend
-  # =========================
   backend:
     build:
       context: ./backend
@@ -109,8 +78,6 @@ services:
 
       REDIS_URL: redis://redis:6379
 
-      DOCLING_URL: http://docling:5001
-
       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
@@ -128,17 +95,12 @@ services:
     depends_on:
       - postgres
       - redis
-      - docling
 
     networks:
       - sentinel-network
 
     restart: unless-stopped
 
-
-  # =========================
-  # React Frontend
-  # =========================
   frontend:
     build:
       context: ./frontend
@@ -163,19 +125,11 @@ services:
 
     restart: unless-stopped
 
-
-# =========================
-# Volumes
-# =========================
 volumes:
   postgres_data:
   redis_data:
   pgadmin_data:
 
-
-# =========================
-# Network
-# =========================
 networks:
   sentinel-network:
     driver: bridge
