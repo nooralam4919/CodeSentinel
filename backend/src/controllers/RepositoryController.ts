@@ -4,6 +4,8 @@ import { asyncHandler } from "../utils/asynHandle.js";
 import { Request, Response } from "express";
 import {cloneRepository} from '../utils/cloneRepository.js'
 import {scanRepository} from '../utils/scanRepository.js'
+import { Chunking } from "../services/Chunking.service.js";
+
 
 const RepoRequest = asyncHandler(
     async (req: Request, res: Response) => {
@@ -26,10 +28,13 @@ const RepoRequest = asyncHandler(
 
         // scan repo
         const scanRepo = await scanRepository(repoPath);
+        console.log(scanRepo.length);
         console.log(scanRepo);
 
-        
-        
+        // chunking docomnet
+        const chunkingAPItoRevieEngi = await Chunking(scanRepo);
+        console.log("this is my chuning API call", chunkingAPItoRevieEngi)
+
 
         res.status(200).json(
             new ApiResponse(

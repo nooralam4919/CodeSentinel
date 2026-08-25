@@ -101,6 +101,30 @@ services:
 
     restart: unless-stopped
 
+  review-engine:
+    build:
+      context: ./review-engine
+
+    container_name: codesentinel-review-engine
+
+    ports:
+      - "9000:9000"
+
+    volumes:
+      - ./review-engine:/app
+      - /app/node_modules
+
+    environment:
+      PORT: 9000
+
+    depends_on:
+      - postgres
+
+    networks:
+      - sentinel-network
+
+    restart: unless-stopped
+
   frontend:
     build:
       context: ./frontend

@@ -6,8 +6,6 @@ import { ApiError } from "../../utils/ApiError.js";
 import { Request, Response } from "express";
 import {generateAccessToken, generateRefreshToken} from '../../utils/jwt.js'
 import {uploadOnCloudinay} from '../../utils/cloudnary.js'
-import {parseWithDocling} from "../../services/Docling.service.js"
-import {chunkMarkdown} from "../../services/Chunking.service.js"
 
 
 const generateAccessTokenAndRefreshToken = async (userId: string) => {

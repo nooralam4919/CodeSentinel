@@ -1,23 +1,31 @@
-import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
+import fs from "fs/promises";
 
-const splitter = new RecursiveCharacterTextSplitter({
-    chunkSize: 1000,
-    chunkOverlap: 150,
-    separators: [
-        "\n## ",
-        "\n### ",
-        "\n\n",
-        "\n",
-        ". ",
-        " ",
-        ""
-    ],
-});
+export const Chunking = async (files: string[]) => {
 
-export const chunkMarkdown = async (markdown: string) => {
-    const chunks = await splitter.createDocuments([markdown]);
+    for (const file of files) {
 
-    console.log("Number of chunks:", chunks.length);
+        const content = await fs.readFile(
+            file,
+            "utf-8"
+        );
 
-    return chunks;
+        const response = await fetch(
+            "http://review-engine:9000/process",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    filePath: file,
+                    content: content
+                })
+            }
+        );
+
+        const result = await response.json();
+        console.log("this is cumming form review engin() 👍👍👍👍👍👍👍", result)
+
+        console.log(result);
+    }
 };
