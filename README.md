@@ -2,11 +2,9 @@
 
 ### AI-Powered Agentic RAG Platform for Codebase Intelligence
 
-CodeSentinel is an **AI-powered codebase intelligence platform** that combines **Agentic RAG, multi-agent workflows, vector search, embeddings, LLM reasoning, and document intelligence** to understand real-world software repositories.
+CodeSentinel is an **AI-powered codebase intelligence platform** that combines **Agentic RAG, LangChain, LangGraph, vector search, embeddings, LLM reasoning, document intelligence, and automated repository processing** to understand real-world software repositories.
 
 Instead of manually navigating hundreds of files, developers can ask questions about their codebase and receive **context-aware, repository-grounded answers**.
-
----
 
 ## 🚀 What It Does
 
@@ -59,12 +57,11 @@ Instead of manually navigating hundreds of files, developers can ask questions a
                          └──────────────────────┘
 ```
 
----
-
-# 🧠 AI & RAG
+## 🧠 AI & RAG
 
 * 🤖 **Agentic RAG** for multi-step repository reasoning
-* 🧩 **Specialized AI agents** for retrieval, code analysis, and architecture
+* 🧩 **LangGraph** for stateful agent orchestration and workflows
+* 🔗 **LangChain** for LLM integration, retrieval, prompts, and tools
 * 🔎 **Semantic vector search** for repository-aware retrieval
 * 🧠 **Embeddings** for source code and documentation
 * 🛠️ **Tool-augmented agents** for repository exploration
@@ -72,9 +69,7 @@ Instead of manually navigating hundreds of files, developers can ask questions a
 * 📄 **Docling + FastAPI** for document intelligence
 * 🔗 **Multi-step reasoning** across related files and modules
 
----
-
-# 🧩 Agent Architecture
+## 🧩 Agent Architecture
 
 ```text
                               ┌───────────────────┐
@@ -83,6 +78,7 @@ Instead of manually navigating hundreds of files, developers can ask questions a
                                         │
                                         ▼
                               ┌───────────────────┐
+                              │   LangGraph       │
                               │ Agent Orchestrator│
                               └─────────┬─────────┘
                                         │
@@ -96,6 +92,12 @@ Instead of manually navigating hundreds of files, developers can ask questions a
                │                      │                      │
                └──────────────────────┼──────────────────────┘
                                       ▼
+                             ┌───────────────────┐
+                             │    LangChain      │
+                             │ Tools + Retrieval │
+                             └─────────┬─────────┘
+                                       │
+                                       ▼
                              ┌───────────────────┐
                              │   RAG Retrieval   │
                              └─────────┬─────────┘
@@ -116,130 +118,128 @@ Instead of manually navigating hundreds of files, developers can ask questions a
                              └───────────────────┘
 ```
 
----
-
-# 🔥 Complex End-to-End Architecture
+## 🔥 Complex End-to-End Architecture
 
 ```text
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                              CODE SENTINEL                                   │
-└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                                CODE SENTINEL                                     │
+└──────────────────────────────────────────────────────────────────────────────────┘
 
-        ┌──────────────────┐                    ┌──────────────────┐
-        │   React Client   │                    │  Repository URL  │
-        │  TypeScript UI   │                    │  Document Upload │
-        └────────┬─────────┘                    └────────┬─────────┘
-                 │                                       │
-                 └───────────────────┬───────────────────┘
+          ┌───────────────────┐                  ┌────────────────────┐
+          │   React Client    │                  │ GitHub Repository  │
+          │  TypeScript UI    │                  │ Webhook Events     │
+          └─────────┬─────────┘                  └──────────┬─────────┘
+                    │                                       │
+                    └──────────────────┬────────────────────┘
+                                       │
+                                       ▼
+                           ┌──────────────────────┐
+                           │     REST API         │
+                           │ Node.js + Express    │
+                           └──────────┬───────────┘
+                                      │
+                    ┌─────────────────┼──────────────────┐
+                    │                 │                  │
+                    ▼                 ▼                  ▼
+             ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+             │   Prisma     │  │    Redis     │  │   Docling    │
+             │   ORM        │  │ Cache / State│  │ FastAPI / Py │
+             └──────┬───────┘  └──────────────┘  └──────┬───────┘
+                    │                                   │
+                    ▼                                   ▼
+             ┌──────────────┐                  ┌────────────────┐
+             │ PostgreSQL   │                  │    Document    │
+             │   Database   │                  │   Processing   │
+             └──────────────┘                  └───────┬────────┘
+                                                       │
+                                                       ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                              KNOWLEDGE PIPELINE                                   │
+│                                                                                  │
+│ Repository → Discovery → Parsing → Chunking → Metadata → Embeddings             │
+│                                                                    │             │
+│                                                                    ▼             │
+│                                                               Vector Store        │
+└──────────────────────────────────────────────────────────────────────────────────┘
+                                                                    │
+                                                                    ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                               AGENTIC AI LAYER                                   │
+│                                                                                  │
+│                          ┌─────────────────────┐                                 │
+│                          │      LangGraph      │                                 │
+│                          │  Agent Orchestrator │                                 │
+│                          └──────────┬──────────┘                                 │
+│                                     │                                            │
+│             ┌───────────────────────┼────────────────────────┐                   │
+│             │                       │                        │                   │
+│             ▼                       ▼                        ▼                   │
+│      ┌─────────────┐         ┌─────────────┐          ┌─────────────┐            │
+│      │ Retrieval   │         │    Code     │          │Architecture │            │
+│      │    Agent    │         │    Agent    │          │    Agent    │            │
+│      └──────┬──────┘         └──────┬──────┘          └──────┬──────┘            │
+│             │                       │                        │                    │
+│             └───────────────────────┼────────────────────────┘                    │
+│                                     ▼                                            │
+│                           ┌──────────────────┐                                   │
+│                           │    LangChain     │                                   │
+│                           │ Tools + Retrieval│                                   │
+│                           └────────┬─────────┘                                   │
+│                                    │                                             │
+│              ┌─────────────────────┼─────────────────────┐                       │
+│              ▼                     ▼                     ▼                       │
+│        File Search          Vector Search          Code Retrieval                │
+│              │                     │                     │                       │
+│              └─────────────────────┼─────────────────────┘                       │
+│                                    ▼                                             │
+│                           Context Aggregation                                    │
+└────────────────────────────────────┬─────────────────────────────────────────────┘
                                      │
                                      ▼
-                         ┌──────────────────────┐
-                         │     REST API         │
-                         │ Node.js + Express    │
-                         └──────────┬───────────┘
-                                    │
-                    ┌───────────────┼───────────────┐
-                    │               │               │
-                    ▼               ▼               ▼
-             ┌────────────┐  ┌────────────┐  ┌──────────────┐
-             │ PostgreSQL │  │   Redis    │  │  Docling     │
-             │            │  │            │  │ FastAPI/Py   │
-             └────────────┘  └────────────┘  └──────┬───────┘
-                                                    │
-                                                    ▼
-                                            ┌───────────────┐
-                                            │ Document      │
-                                            │ Processing    │
-                                            └───────┬───────┘
-                                                    │
-                                                    ▼
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                            KNOWLEDGE PIPELINE                                │
-│                                                                              │
-│   Repository ──► File Discovery ──► Parsing ──► Chunking ──► Metadata       │
-│                                                               │              │
-│                                                               ▼              │
-│                                                         Embeddings           │
-│                                                               │              │
-│                                                               ▼              │
-│                                                        Vector Store          │
-└──────────────────────────────────────────────────────────────────────────────┘
-                                                               │
-                                                               ▼
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                              AGENT LAYER                                     │
-│                                                                              │
-│                         ┌────────────────────┐                               │
-│                         │ Agent Orchestrator │                               │
-│                         └─────────┬──────────┘                               │
-│                                   │                                          │
-│          ┌────────────────────────┼────────────────────────┐                 │
-│          │                        │                        │                 │
-│          ▼                        ▼                        ▼                 │
-│   ┌──────────────┐        ┌──────────────┐        ┌──────────────┐          │
-│   │  Retrieval   │        │     Code     │        │ Architecture │          │
-│   │    Agent     │        │    Agent     │        │    Agent     │          │
-│   └──────┬───────┘        └──────┬───────┘        └──────┬───────┘          │
-│          │                        │                        │                  │
-│          └────────────────────────┼────────────────────────┘                  │
-│                                   ▼                                          │
-│                         ┌────────────────────┐                               │
-│                         │ Tool Execution     │                               │
-│                         └─────────┬──────────┘                               │
-│                                   │                                          │
-│                    ┌──────────────┼──────────────┐                           │
-│                    │              │              │                           │
-│                    ▼              ▼              ▼                           │
-│               File Search   Vector Search   Code Retrieval                   │
-│                    │              │              │                           │
-│                    └──────────────┼──────────────┘                           │
-│                                   ▼                                          │
-│                          Context Aggregation                                 │
-└───────────────────────────────────┬──────────────────────────────────────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │    LLM / Gemini      │
-                         │   Reasoning Layer    │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │ Evidence-Grounded    │
-                         │ AI Response          │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │     React Client     │
-                         │   Analysis Results   │
-                         └──────────────────────┘
+                           ┌──────────────────────┐
+                           │     LLM / Gemini     │
+                           │    Reasoning Layer   │
+                           └──────────┬───────────┘
+                                      │
+                                      ▼
+                           ┌──────────────────────┐
+                           │ Evidence-Grounded    │
+                           │     AI Response      │
+                           └──────────┬───────────┘
+                                      │
+                                      ▼
+                           ┌──────────────────────┐
+                           │     React Client     │
+                           │   Analysis Results   │
+                           └──────────────────────┘
+
+
+        ┌────────────────────────────────────────────────────────────┐
+        │                    DEVOPS PIPELINE                         │
+        │                                                            │
+        │  Git Push → CI → Build → Test → Docker Build → Deploy    │
+        │                                                            │
+        └────────────────────────────────────────────────────────────┘
 ```
 
----
-
-# 🔍 RAG Pipeline
+## 🔍 RAG Pipeline
 
 ```text
 ┌──────────────┐
 │ Source Code  │
 └──────┬───────┘
-       │
        ▼
 ┌──────────────┐
-│   Parsing    │
+│    Parsing   │
 └──────┬───────┘
-       │
        ▼
 ┌──────────────┐
 │   Chunking   │
 └──────┬───────┘
-       │
        ▼
 ┌──────────────┐
 │  Embeddings  │
 └──────┬───────┘
-       │
        ▼
 ┌──────────────┐
 │ Vector Store │
@@ -247,45 +247,72 @@ Instead of manually navigating hundreds of files, developers can ask questions a
        │
        │
        │          ┌──────────────┐
-       └─────────►│ User Query   │
+       └─────────►│  User Query  │
                   └──────┬───────┘
-                         │
                          ▼
                   ┌──────────────┐
                   │ Query Embed  │
                   └──────┬───────┘
-                         │
                          ▼
                   ┌──────────────┐
                   │ Vector Search│
                   └──────┬───────┘
-                         │
                          ▼
                   ┌──────────────┐
                   │ Top-K Context │
                   └──────┬───────┘
-                         │
                          ▼
                   ┌──────────────┐
-                  │ Context      │
-                  │ Assembly     │
+                  │Context Assembly│
                   └──────┬───────┘
-                         │
                          ▼
                   ┌──────────────┐
                   │     LLM      │
                   └──────┬───────┘
-                         │
                          ▼
                   ┌──────────────┐
                   │ Grounded AI  │
-                  │   Answer     │
+                  │    Answer    │
                   └──────────────┘
 ```
 
----
+## 🔗 Webhook-Driven Repository Updates
 
-# 🧑‍💻 Frontend
+CodeSentinel can integrate repository events through webhooks.
+
+```text
+┌─────────────────┐
+│ GitHub Repository│
+└────────┬────────┘
+         │
+         │ Push / PR Event
+         ▼
+┌─────────────────┐
+│ Webhook Endpoint│
+└────────┬────────┘
+         ▼
+┌─────────────────┐
+│ Event Validation│
+└────────┬────────┘
+         ▼
+┌─────────────────┐
+│ Redis / Job Flow │
+└────────┬────────┘
+         ▼
+┌─────────────────┐
+│ Repository Sync │
+└────────┬────────┘
+         ▼
+┌─────────────────┐
+│ Re-index / RAG  │
+└────────┬────────┘
+         ▼
+┌─────────────────┐
+│ Updated Knowledge│
+└─────────────────┘
+```
+
+## 💻 Frontend
 
 A modern **React + TypeScript interface** provides an interactive workspace for repository intelligence.
 
@@ -295,33 +322,28 @@ A modern **React + TypeScript interface** provides an interactive workspace for 
 * 📄 Document upload
 * 💬 AI-powered interaction
 * 🧠 RAG-generated insights
-* 📊 Analysis result visualization
+* 📊 Analysis visualization
 * ⚡ Responsive API-driven experience
 
 ```text
 ┌──────────────────────┐
 │ React + TypeScript   │
 └──────────┬───────────┘
-           │
            ▼
 ┌──────────────────────┐
 │ REST API             │
 └──────────┬───────────┘
-           │
            ▼
 ┌──────────────────────┐
 │ Agentic RAG Backend  │
 └──────────┬───────────┘
-           │
            ▼
 ┌──────────────────────┐
 │ Repository Intelligence│
 └──────────────────────┘
 ```
 
----
-
-# ⚡ Example
+## ⚡ Example
 
 ### Ask
 
@@ -331,7 +353,7 @@ A modern **React + TypeScript interface** provides an interactive workspace for 
 
 ```text
 ┌──────────────┐
-│ User Query   │
+│  User Query  │
 └──────┬───────┘
        ▼
 ┌──────────────────────┐
@@ -339,19 +361,19 @@ A modern **React + TypeScript interface** provides an interactive workspace for 
 └──────┬───────────────┘
        ▼
 ┌──────────────────────┐
-│ Agent Selection      │
+│ LangGraph Routing    │
 └──────┬───────────────┘
        ▼
 ┌──────────────────────┐
-│ Semantic Retrieval   │
+│ Retrieval Agent      │
 └──────┬───────────────┘
        ▼
 ┌──────────────────────┐
-│ Auth Files Retrieved │
+│ LangChain Retrieval  │
 └──────┬───────────────┘
        ▼
 ┌──────────────────────┐
-│ Context Aggregation  │
+│ Auth Context         │
 └──────┬───────────────┘
        ▼
 ┌──────────────────────┐
@@ -359,46 +381,48 @@ A modern **React + TypeScript interface** provides an interactive workspace for 
 └──────┬───────────────┘
        ▼
 ┌──────────────────────┐
-│ Grounded Answer      │
+│  Grounded Answer     │
 └──────────────────────┘
 ```
 
 > The LLM doesn't need the entire repository in its context window. **CodeSentinel retrieves the most relevant information first, then uses it to generate a grounded response.**
 
----
+## 🧰 Tech Stack
 
-# 🧰 Tech Stack
+| Layer                 | Technologies                                             |
+| --------------------- | -------------------------------------------------------- |
+| 🤖 **AI / LLM**       | Gemini, LLMs, Agentic AI, Tool Calling                   |
+| 🧠 **RAG**            | LangChain, Embeddings, Vector Search, Semantic Retrieval |
+| 🕸️ **Agents**        | LangGraph, Multi-Agent Workflows, Agent Orchestration    |
+| 💻 **Frontend**       | React, TypeScript                                        |
+| ⚙️ **Backend**        | Node.js, Express.js, TypeScript                          |
+| 🐍 **AI Services**    | Python, FastAPI, Docling                                 |
+| 🗄️ **Database**      | PostgreSQL, Prisma ORM                                   |
+| ⚡ **Caching / State** | Redis                                                    |
+| 🔗 **Integration**    | GitHub Webhooks, REST APIs                               |
+| 🐳 **Infrastructure** | Docker, Docker Compose                                   |
+| 🔄 **CI/CD**          | Automated Build, Test & Deployment Pipeline              |
+| 🔧 **Development**    | Git, GitHub, Postman                                     |
 
-| Layer                 | Technologies                                  |
-| --------------------- | --------------------------------------------- |
-| 🤖 **AI**             | LLMs, Agentic AI, Tool Calling                |
-| 🧠 **RAG**            | Embeddings, Vector Search, Semantic Retrieval |
-| 💻 **Frontend**       | React, TypeScript                             |
-| ⚙️ **Backend**        | Node.js, Express.js, TypeScript               |
-| 🐍 **AI Services**    | Python, FastAPI, Docling                      |
-| 🗄️ **Data**          | PostgreSQL, Redis, Vector Database            |
-| 🐳 **Infrastructure** | Docker, Docker Compose                        |
-| 🔧 **Development**    | Git, GitHub, Postman                          |
+## 🔥 Why CodeSentinel?
 
----
+CodeSentinel brings together modern **AI engineering and production backend architecture**:
 
-# 🔥 Why CodeSentinel?
+**Repository → Ingestion → Processing → Embeddings → Vector Search → LangGraph Agents → LangChain Tools → LLM Reasoning → Grounded Response**
 
-CodeSentinel demonstrates practical AI engineering across the complete lifecycle:
+### AI Engineering
 
-**Repository → Ingestion → Processing → Embeddings → Vector Search → Agent Orchestration → Retrieval → LLM Reasoning → Grounded Response**
+**Agentic RAG • LangGraph • LangChain • LLMs • Embeddings • Vector Search • Tool Calling • Code Intelligence • Document AI**
 
-### Core Technologies
+### Backend & Infrastructure
 
-**RAG • Agentic AI • LLMs • Embeddings • Vector Search • Tool Calling • Code Intelligence • Document AI**
+**Node.js • TypeScript • Python • FastAPI • Prisma • PostgreSQL • Redis • Docker • CI/CD • Webhooks**
 
-### Engineering Stack
+### Frontend
 
-**React • TypeScript • Node.js • Python • FastAPI • PostgreSQL • Redis • Docker**
+**React • TypeScript • REST APIs • Interactive AI Workspace**
 
----
-
-# 🔮 Roadmap
+## 🔮 Roadmap
 
 * [ ] Multi-agent collaboration
 * [ ] Code-review agent
@@ -412,17 +436,13 @@ CodeSentinel demonstrates practical AI engineering across the complete lifecycle
 * [ ] Agent observability
 * [ ] Repository dependency graphs
 
----
-
-# 👨‍💻 Author
+## 👨‍💻 Author
 
 ### Noor Alam
 
 **Software Developer | AI & Backend Engineering**
 
-`C++` · `Python` · `TypeScript` · `RAG` · `Agentic AI` · `Backend Systems`
-
----
+`C++` · `Python` · `TypeScript` · `RAG` · `Agentic AI` · `LangChain` · `LangGraph` · `Backend Systems`
 
 <p align="center">
 
