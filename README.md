@@ -2,214 +2,432 @@
 
 ### AI-Powered Agentic RAG Platform for Codebase Intelligence
 
-CodeSentinel is an **AI-powered codebase intelligence platform** that combines **RAG, multi-agent workflows, vector search, LLMs, and document intelligence** to understand and analyze real-world software repositories.
+CodeSentinel is an **AI-powered codebase intelligence platform** that combines **Agentic RAG, multi-agent workflows, vector search, embeddings, LLM reasoning, and document intelligence** to understand real-world software repositories.
 
 Instead of manually navigating hundreds of files, developers can ask questions about their codebase and receive **context-aware, repository-grounded answers**.
 
+---
 
 ## 🚀 What It Does
 
+```text
+                         ┌──────────────────────┐
+                         │    GitHub Repository │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │ Repository Ingestion │
+                         └──────────┬───────────┘
+                                    │
+                    ┌───────────────┴───────────────┐
+                    │                               │
+                    ▼                               ▼
+             ┌──────────────┐               ┌──────────────┐
+             │ Source Code  │               │ Documents    │
+             └──────┬───────┘               └──────┬───────┘
+                    │                               │
+                    ▼                               ▼
+             ┌──────────────┐               ┌──────────────┐
+             │ Code Parsing │               │   Docling    │
+             └──────┬───────┘               └──────┬───────┘
+                    │                               │
+                    └───────────────┬───────────────┘
+                                    ▼
+                         ┌──────────────────────┐
+                         │ Chunking + Metadata  │
+                         └──────────┬───────────┘
+                                    ▼
+                         ┌──────────────────────┐
+                         │      Embeddings      │
+                         └──────────┬───────────┘
+                                    ▼
+                         ┌──────────────────────┐
+                         │    Vector Database   │
+                         └──────────┬───────────┘
+                                    ▼
+                         ┌──────────────────────┐
+                         │    Agentic RAG       │
+                         └──────────┬───────────┘
+                                    ▼
+                         ┌──────────────────────┐
+                         │    LLM Reasoning     │
+                         └──────────┬───────────┘
+                                    ▼
+                         ┌──────────────────────┐
+                         │ Grounded AI Insights │
+                         └──────────────────────┘
+```
 
-GitHub Repository
-       ↓
-Repository Ingestion
-       ↓
-Code + Documentation Processing
-       ↓
-Chunking + Embeddings
-       ↓
-Vector Database
-       ↓
-Agentic RAG
-       ↓
-LLM Reasoning
-       ↓
-Grounded AI Insights
+---
 
+# 🧠 AI & RAG
 
-### 🤖 AI & RAG
+* 🤖 **Agentic RAG** for multi-step repository reasoning
+* 🧩 **Specialized AI agents** for retrieval, code analysis, and architecture
+* 🔎 **Semantic vector search** for repository-aware retrieval
+* 🧠 **Embeddings** for source code and documentation
+* 🛠️ **Tool-augmented agents** for repository exploration
+* 📚 **Context-aware generation** using retrieved evidence
+* 📄 **Docling + FastAPI** for document intelligence
+* 🔗 **Multi-step reasoning** across related files and modules
 
-* **Agentic RAG** for multi-step repository reasoning
-* **Specialized AI agents** for retrieval, code analysis, and architecture
-* **Semantic vector search** for relevant code/context retrieval
-* **Embeddings** for code and documentation
-* **Tool-augmented agents** for repository exploration
-* **Grounded generation** using retrieved repository context
-* **Docling + FastAPI** for intelligent document extraction
+---
 
+# 🧩 Agent Architecture
 
+```text
+                              ┌───────────────────┐
+                              │    User Query     │
+                              └─────────┬─────────┘
+                                        │
+                                        ▼
+                              ┌───────────────────┐
+                              │ Agent Orchestrator│
+                              └─────────┬─────────┘
+                                        │
+                ┌───────────────────────┼───────────────────────┐
+                │                       │                       │
+                ▼                       ▼                       ▼
+       ┌────────────────┐     ┌────────────────┐     ┌────────────────┐
+       │ Retrieval Agent│     │  Code Agent    │     │Architecture    │
+       │                │     │                │     │Agent           │
+       └───────┬────────┘     └───────┬────────┘     └───────┬────────┘
+               │                      │                      │
+               └──────────────────────┼──────────────────────┘
+                                      ▼
+                             ┌───────────────────┐
+                             │   RAG Retrieval   │
+                             └─────────┬─────────┘
+                                       │
+                                       ▼
+                             ┌───────────────────┐
+                             │ Context Assembly  │
+                             └─────────┬─────────┘
+                                       │
+                                       ▼
+                             ┌───────────────────┐
+                             │   LLM Reasoning   │
+                             └─────────┬─────────┘
+                                       │
+                                       ▼
+                             ┌───────────────────┐
+                             │ Grounded Response │
+                             └───────────────────┘
+```
 
-## 🧠 Agent Architecture
+---
 
+# 🔥 Complex End-to-End Architecture
 
-                    User Query
-                        ↓
-                Agent Orchestrator
-                        ↓
-        ┌───────────────┼───────────────┐
-        ↓               ↓               ↓
-   Retrieval        Code Analysis   Architecture
-     Agent             Agent           Agent
-        └───────────────┼───────────────┘
-                        ↓
-                  RAG Retrieval
-                        ↓
-                  LLM Reasoning
-                        ↓
-                Grounded Response
+```text
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                              CODE SENTINEL                                   │
+└──────────────────────────────────────────────────────────────────────────────┘
 
+        ┌──────────────────┐                    ┌──────────────────┐
+        │   React Client   │                    │  Repository URL  │
+        │  TypeScript UI   │                    │  Document Upload │
+        └────────┬─────────┘                    └────────┬─────────┘
+                 │                                       │
+                 └───────────────────┬───────────────────┘
+                                     │
+                                     ▼
+                         ┌──────────────────────┐
+                         │     REST API         │
+                         │ Node.js + Express    │
+                         └──────────┬───────────┘
+                                    │
+                    ┌───────────────┼───────────────┐
+                    │               │               │
+                    ▼               ▼               ▼
+             ┌────────────┐  ┌────────────┐  ┌──────────────┐
+             │ PostgreSQL │  │   Redis    │  │  Docling     │
+             │            │  │            │  │ FastAPI/Py   │
+             └────────────┘  └────────────┘  └──────┬───────┘
+                                                    │
+                                                    ▼
+                                            ┌───────────────┐
+                                            │ Document      │
+                                            │ Processing    │
+                                            └───────┬───────┘
+                                                    │
+                                                    ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                            KNOWLEDGE PIPELINE                                │
+│                                                                              │
+│   Repository ──► File Discovery ──► Parsing ──► Chunking ──► Metadata       │
+│                                                               │              │
+│                                                               ▼              │
+│                                                         Embeddings           │
+│                                                               │              │
+│                                                               ▼              │
+│                                                        Vector Store          │
+└──────────────────────────────────────────────────────────────────────────────┘
+                                                               │
+                                                               ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                              AGENT LAYER                                     │
+│                                                                              │
+│                         ┌────────────────────┐                               │
+│                         │ Agent Orchestrator │                               │
+│                         └─────────┬──────────┘                               │
+│                                   │                                          │
+│          ┌────────────────────────┼────────────────────────┐                 │
+│          │                        │                        │                 │
+│          ▼                        ▼                        ▼                 │
+│   ┌──────────────┐        ┌──────────────┐        ┌──────────────┐          │
+│   │  Retrieval   │        │     Code     │        │ Architecture │          │
+│   │    Agent     │        │    Agent     │        │    Agent     │          │
+│   └──────┬───────┘        └──────┬───────┘        └──────┬───────┘          │
+│          │                        │                        │                  │
+│          └────────────────────────┼────────────────────────┘                  │
+│                                   ▼                                          │
+│                         ┌────────────────────┐                               │
+│                         │ Tool Execution     │                               │
+│                         └─────────┬──────────┘                               │
+│                                   │                                          │
+│                    ┌──────────────┼──────────────┐                           │
+│                    │              │              │                           │
+│                    ▼              ▼              ▼                           │
+│               File Search   Vector Search   Code Retrieval                   │
+│                    │              │              │                           │
+│                    └──────────────┼──────────────┘                           │
+│                                   ▼                                          │
+│                          Context Aggregation                                 │
+└───────────────────────────────────┬──────────────────────────────────────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │    LLM / Gemini      │
+                         │   Reasoning Layer    │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │ Evidence-Grounded    │
+                         │ AI Response          │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │     React Client     │
+                         │   Analysis Results   │
+                         └──────────────────────┘
+```
 
-Agents can perform multi-step tasks such as:
+---
 
-> **"Explain how authentication works in this repository."**
+# 🔍 RAG Pipeline
 
-
-Find Auth Routes
-      ↓
-Find Middleware
-      ↓
-Find JWT Logic
-      ↓
-Trace Dependencies
-      ↓
-Analyze Context
-      ↓
-Generate Explanation
-
-
-
-
-# 💻 Frontend
-
-A modern **React + TypeScript interface** provides an interactive workspace for repository analysis.
-
-### Key UI capabilities
-
-* 🔗 Submit repository URLs
-* 📄 Upload documents
-* 💬 Interact with AI analysis
-* 🧠 View RAG-powered insights
-* 📊 Explore analysis results
-* ⚡ Real-time API-driven experience
-
-
-React + TypeScript
-        ↓
-REST API
-        ↓
-AI / RAG Backend
-        ↓
-Repository Intelligence
-
-
-
-🏗️ Architecture
-
-
-                       React + TypeScript
-                              │
-                              ▼
-                       Node.js + Express
-                              │
-                    ┌─────────┼─────────┐
-                    ↓         ↓         ↓
-                AI Agents    RAG     Docling
-                    │         │         │
-                    └────┬────┴─────────┘
-                         ↓
-                  Vector Database
+```text
+┌──────────────┐
+│ Source Code  │
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│   Parsing    │
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│   Chunking   │
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│  Embeddings  │
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│ Vector Store │
+└──────┬───────┘
+       │
+       │
+       │          ┌──────────────┐
+       └─────────►│ User Query   │
+                  └──────┬───────┘
                          │
-                         ↓
-                       LLM
+                         ▼
+                  ┌──────────────┐
+                  │ Query Embed  │
+                  └──────┬───────┘
                          │
-                         ↓
-                  AI Insights
-                         
-        PostgreSQL + Redis + Docker
+                         ▼
+                  ┌──────────────┐
+                  │ Vector Search│
+                  └──────┬───────┘
+                         │
+                         ▼
+                  ┌──────────────┐
+                  │ Top-K Context │
+                  └──────┬───────┘
+                         │
+                         ▼
+                  ┌──────────────┐
+                  │ Context      │
+                  │ Assembly     │
+                  └──────┬───────┘
+                         │
+                         ▼
+                  ┌──────────────┐
+                  │     LLM      │
+                  └──────┬───────┘
+                         │
+                         ▼
+                  ┌──────────────┐
+                  │ Grounded AI  │
+                  │   Answer     │
+                  └──────────────┘
+```
 
+---
 
+# 🧑‍💻 Frontend
 
+A modern **React + TypeScript interface** provides an interactive workspace for repository intelligence.
 
-# 🧰 Tech Stack
+### Highlights
 
-| Layer              | Technologies                                  |
-| ------------------ | --------------------------------------------- |
-| **AI**             | LLMs, Agentic AI, RAG, Tool Calling           |
-| **RAG**            | Embeddings, Vector Search, Semantic Retrieval |
-| **Frontend**       | React, TypeScript                             |
-| **Backend**        | Node.js, Express.js, TypeScript               |
-| **AI Service**     | Python, FastAPI, Docling                      |
-| **Database**       | PostgreSQL, Redis                             |
-| **Infrastructure** | Docker, Docker Compose                        |
-| **Development**    | Git, GitHub, Postman                          |
+* 🔗 Repository URL submission
+* 📄 Document upload
+* 💬 AI-powered interaction
+* 🧠 RAG-generated insights
+* 📊 Analysis result visualization
+* ⚡ Responsive API-driven experience
 
+```text
+┌──────────────────────┐
+│ React + TypeScript   │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│ REST API             │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│ Agentic RAG Backend  │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│ Repository Intelligence│
+└──────────────────────┘
+```
+
+---
 
 # ⚡ Example
 
-### Ask:
+### Ask
 
 > **"Where is JWT authentication implemented?"**
 
-### CodeSentinel:
+### Agentic Workflow
 
+```text
+┌──────────────┐
+│ User Query   │
+└──────┬───────┘
+       ▼
+┌──────────────────────┐
+│ Query Understanding  │
+└──────┬───────────────┘
+       ▼
+┌──────────────────────┐
+│ Agent Selection      │
+└──────┬───────────────┘
+       ▼
+┌──────────────────────┐
+│ Semantic Retrieval   │
+└──────┬───────────────┘
+       ▼
+┌──────────────────────┐
+│ Auth Files Retrieved │
+└──────┬───────────────┘
+       ▼
+┌──────────────────────┐
+│ Context Aggregation  │
+└──────┬───────────────┘
+       ▼
+┌──────────────────────┐
+│ LLM Reasoning        │
+└──────┬───────────────┘
+       ▼
+┌──────────────────────┐
+│ Grounded Answer      │
+└──────────────────────┘
+```
 
-User Query
-    ↓
-Agent determines retrieval strategy
-    ↓
-Semantic Search
-    ↓
-Relevant authentication files
-    ↓
-Context aggregation
-    ↓
-LLM reasoning
-    ↓
-Repository-grounded answer
+> The LLM doesn't need the entire repository in its context window. **CodeSentinel retrieves the most relevant information first, then uses it to generate a grounded response.**
 
+---
 
-The system doesn't need the entire repository in the prompt — **RAG retrieves the relevant context first.**
+# 🧰 Tech Stack
 
+| Layer                 | Technologies                                  |
+| --------------------- | --------------------------------------------- |
+| 🤖 **AI**             | LLMs, Agentic AI, Tool Calling                |
+| 🧠 **RAG**            | Embeddings, Vector Search, Semantic Retrieval |
+| 💻 **Frontend**       | React, TypeScript                             |
+| ⚙️ **Backend**        | Node.js, Express.js, TypeScript               |
+| 🐍 **AI Services**    | Python, FastAPI, Docling                      |
+| 🗄️ **Data**          | PostgreSQL, Redis, Vector Database            |
+| 🐳 **Infrastructure** | Docker, Docker Compose                        |
+| 🔧 **Development**    | Git, GitHub, Postman                          |
 
+---
 
 # 🔥 Why CodeSentinel?
 
-CodeSentinel demonstrates practical experience with modern AI engineering:
+CodeSentinel demonstrates practical AI engineering across the complete lifecycle:
 
-**RAG • Agentic AI • Vector Search • Embeddings • LLMs • Tool Calling • Code Intelligence • Document AI**
+**Repository → Ingestion → Processing → Embeddings → Vector Search → Agent Orchestration → Retrieval → LLM Reasoning → Grounded Response**
 
-Combined with:
+### Core Technologies
 
-**React • TypeScript • Node.js • Python • PostgreSQL • Redis • Docker**
+**RAG • Agentic AI • LLMs • Embeddings • Vector Search • Tool Calling • Code Intelligence • Document AI**
 
+### Engineering Stack
 
+**React • TypeScript • Node.js • Python • FastAPI • PostgreSQL • Redis • Docker**
+
+---
 
 # 🔮 Roadmap
 
 * [ ] Multi-agent collaboration
 * [ ] Code-review agent
-* [ ] Security/vulnerability agent
+* [ ] Security analysis agent
 * [ ] Dependency analysis agent
-* [ ] AST-aware retrieval
+* [ ] AST-aware code retrieval
 * [ ] Hybrid search + reranking
 * [ ] GitHub App integration
 * [ ] Streaming agent responses
-* [ ] RAG evaluation & observability
+* [ ] RAG evaluation framework
+* [ ] Agent observability
+* [ ] Repository dependency graphs
 
+---
 
 # 👨‍💻 Author
 
-**Noor Alam**
+### Noor Alam
 
-Software Developer | AI & Backend Engineering
+**Software Developer | AI & Backend Engineering**
 
-**C++ • Python • TypeScript • RAG • Agentic AI • Backend Systems**
+`C++` · `Python` · `TypeScript` · `RAG` · `Agentic AI` · `Backend Systems`
 
+---
 
 <p align="center">
 
-### 🛡️ CodeSentinel
+## 🛡️ CodeSentinel
 
-**Turn any codebase into an AI-understandable knowledge base.**
+### Turn any codebase into an AI-understandable knowledge base.
 
 </p>
