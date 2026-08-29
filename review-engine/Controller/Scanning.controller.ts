@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { chunkText } from "../rag/chunking/Chunking.js";
 
-export const scanningRouter = async ( req: Request, res: Response) => {
+export const scanningController = async ( req: Request, res: Response) => {
 
     try {
 
@@ -13,7 +13,7 @@ export const scanningRouter = async ( req: Request, res: Response) => {
             });
         }
 
-        console.log("Processing file:", filePath);
+        // console.log("Processing file:", filePath);
 
         const response = await chunkText(content);
 
