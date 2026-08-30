@@ -42,4 +42,4 @@ tmp/
 temp/
 
 
-.docker/
+.docker/node_modules/
