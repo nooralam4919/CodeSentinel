@@ -30,7 +30,7 @@ app.use(cookieParser());
 console.log("this is my app application ❌❌❌❌❌❌");
 
 
-// router
+// router to my fronted and backend
 import userRouter from "./routes/userRoutes/user.route.js";
 app.use("/api/v1/user", userRouter);
 
@@ -41,6 +41,9 @@ app.use("/auth", githubRouter);
 
 import repoRouter from "./routes/repository.routes.js"
 app.use("/api/v1/github", repoRouter);
+
+import reviewRouter from './routes/review.routes.js'
+app.use("/api/user/agent", reviewRouter);
 
 
 // Global error handler
@@ -74,6 +77,23 @@ app.use("/api/v1/github", repoRouter);
 //                                       │
 //                                       ↓
 //                                "User already exists"
+
+
+
+
+
+// router (from) my review Engine
+import ragRouter from './routes/RAG_Router/rag.routes.js'
+app.use("/internal/rag", ragRouter);
+
+
+
+
+
+
+
+
+
 
 app.use((err: any, req: any, res: any, next: any) => {
   console.error("ERROR:", err);

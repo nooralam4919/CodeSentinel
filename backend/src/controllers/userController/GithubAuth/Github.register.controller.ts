@@ -264,7 +264,8 @@ const githubCallback = asyncHandler( async (req: Request, res: Response) => {
             );
 
 
-
+            // console.log("===================================================")
+            // console.log("this is access token", accessToken)
 
         // =================================================
         // STEP 9

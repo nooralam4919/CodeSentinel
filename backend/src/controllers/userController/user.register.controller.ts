@@ -120,6 +120,7 @@ const login = asyncHandler(
     // Generate tokens
     const tokens = await generateAccessTokenAndRefreshToken(user.id);
 
+
     const accessToken = tokens.accessToken;
     const refreshToken = tokens.refreshToken;
 
