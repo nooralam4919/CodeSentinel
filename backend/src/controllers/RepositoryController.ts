@@ -8,346 +8,591 @@ import { Chunking } from "../services/Chunking.service.js";
 import { EmbeddingService } from "../services/Embedding.service.js";
 import prisma from "../lib/prisma.js";
 
-const RepoRequest = asyncHandler(
-    async (req: Request, res: Response) => {
+
+// ============================================================
+// Repository Scan Controller
+// ============================================================
+
+    const RepoRequest = asyncHandler( async (req: Request, res: Response) => {
+
+        // ========================================================
+        // 1. Get request data
+        // ========================================================
 
         const { cloneUrl } = req.body;
         const userId = req.userId;
 
         if (!cloneUrl) {
-            throw new ApiError(400, "cloneUrl is not found");
+            throw new ApiError(400, "cloneUrl is required");
         }
 
         if (!userId) {
-            throw new ApiError(400, "user is not found");
+            throw new ApiError(400, "User is not authenticated");
         }
 
-        const repositoryName = cloneUrl
-            .split("/")
-            .pop()
-            ?.replace(".git", "");
 
-        // ============================================================
-        // Find existing project
-        // ============================================================
+        // ========================================================
+        // 2. Extract repository name
+        // ========================================================
+
+        const repositoryName = cloneUrl
+                .split("/")
+                .pop()
+                ?.replace(/\.git$/, "") || "unnamed-project";
+
+
+        console.log("==========================================");
+        console.log("Repository URL:", cloneUrl);
+        console.log("Repository Name:", repositoryName);
+        console.log("User ID:", userId);
+        console.log("==========================================");
+
+
+        // ========================================================
+        // 3. Find existing project
+        // ========================================================
 
         let project = await prisma.project.findFirst({
             where: {
                 ownerId: userId,
-                repositoryUrl: cloneUrl
-            }
+                repositoryUrl: cloneUrl,
+            },
         });
 
-        // ============================================================
-        // Create project if it does not exist
-        // ============================================================
+
+        // ========================================================
+        // 4. Create project if it does not exist
+        // ========================================================
 
         if (!project) {
             project = await prisma.project.create({
                 data: {
-                    name: repositoryName || "unnamed project",
+                    name: repositoryName,
                     repositoryUrl: cloneUrl,
                     repositoryName: repositoryName,
-                    ownerId: userId
-                }
+                    ownerId: userId,
+                },
             });
+
+            console.log("Project created:", project.id);
+
+        } else {
+
+            console.log("Project already exists:", project.id);
+
+            return res.status(200).json(
+                new ApiResponse(
+                    200,
+                    {
+                        projectId: project.id,
+                        repositoryName,
+                        repositoryUrl: cloneUrl,
+                    },
+                    "Repository already exists"
+                )
+            );
         }
 
-        console.log("Repository URL:", cloneUrl);
-        console.log("Project ID:", project.id);
 
-        // ============================================================
-        // Create scan
-        // ============================================================
+        // ========================================================
+        // 5. Create Scan
+        // ========================================================
 
         const scan = await prisma.scan.create({
             data: {
                 projectId: project.id,
                 userId: userId,
                 type: "MANUAL",
-                status: "RUNNING"
-            }
+                status: "RUNNING",
+            },
         });
 
         console.log("Scan created:", scan.id);
 
-        // ============================================================
-        // 1. Clone repository
-        // ============================================================
 
-        const repoPath = await cloneRepository(cloneUrl);
+        try {
 
-        console.log(
-            "This is my repo clone:",
-            repoPath
-        );
+            // ====================================================
+            // 6. Clone repository
+            // ====================================================
 
-        // ============================================================
-        // 2. Scan repository
-        // ============================================================
+            console.log("Cloning repository...");
 
-        const scanRepo = await scanRepository(repoPath);
+            const repoPath = await cloneRepository(cloneUrl);
 
-        console.log(
-            "Number of files:",
-            scanRepo.length
-        );
+            console.log("Repository cloned:", repoPath);
 
-        console.log(
-            "Scanned files:",
-            scanRepo
-        );
 
-        // Update total files
-        await prisma.scan.update({
-            where: {
-                id: scan.id
-            },
-            data: {
-                totalFiles: scanRepo.length,
-                scannedFiles: scanRepo.length
-            }
-        });
+            // ====================================================
+            // 7. Scan repository
+            // ====================================================
 
-        // ============================================================
-        // 3. Chunk documents
-        // ============================================================
+            console.log("Scanning repository...");
 
-        const chunkingAPItoRevieEngi = await Chunking(scanRepo);
-
-        console.log(
-            "Chunking response:",
-            chunkingAPItoRevieEngi
-        );
-
-        // ============================================================
-        // 4. Extract chunks
-        // ============================================================
-
-        const allChunks = chunkingAPItoRevieEngi.flatMap(
-            (file) => file.chunks
-        );
-
-        console.log(
-            "Total chunks:",
-            allChunks.length
-        );
-
-        // ============================================================
-        // 5. Generate embeddings
-        // ============================================================
-
-        const embedding = await EmbeddingService(allChunks);
-
-        console.log(
-            "Embedding generated successfully"
-        );
-
-        console.log(
-            "Number of embeddings:",
-            embedding.length
-        );
-
-        // ============================================================
-        // Pushing into database
-        //
-        // Think about it as:
-        //
-        // Who owns this repository?
-        //        ↓
-        // Which repository?
-        //        ↓
-        // Which scan?
-        //        ↓
-        // Which files?
-        //        ↓
-        // Which chunks?
-        //        ↓
-        // Which embeddings?
-        //        ↓
-        // Which security findings?
-        // ============================================================
-
-        // ============================================================
-        // Create ScanFile + CodeChunk
-        // ============================================================
-
-        for (let i = 0; i < scanRepo.length; i++) {
-
-            const filePath = scanRepo[i];
+            const scanRepo = await scanRepository(repoPath);
 
             console.log(
-                "Processing file:",
-                filePath
+                "Number of files:",
+                scanRepo.length
             );
 
-            // --------------------------------------------------------
-            // Create ScanFile
-            // --------------------------------------------------------
 
-            const scanFile = await prisma.scanFile.create({
+            if (!scanRepo || scanRepo.length === 0) {
+
+                throw new ApiError(
+                    400,
+                    "No supported files found in repository"
+                );
+            }
+
+
+            // ====================================================
+            // 8. Update scan file statistics
+            // ====================================================
+
+            await prisma.scan.update({
+                where: {
+                    id: scan.id,
+                },
+
                 data: {
-                    scanId: scan.id,
-                    projectId: project.id,
-                    filePath: filePath,
-                    language: "javascript",
-                    fileSize: 0
-                }
+                    totalFiles: scanRepo.length,
+                    scannedFiles: scanRepo.length,
+                },
             });
 
+
+            // ====================================================
+            // 9. Chunk repository files
+            // ====================================================
+
+            console.log("Chunking repository...");
+
+            const chunkingResult =
+                await Chunking(scanRepo);
+
             console.log(
-                "ScanFile created:",
-                scanFile.id
+                "Chunking completed"
             );
 
-            // --------------------------------------------------------
-            // Get chunks belonging to this file
-            // --------------------------------------------------------
 
-            const fileResult = chunkingAPItoRevieEngi[i];
+            // ====================================================
+            // 10. Validate chunking result
+            // ====================================================
 
-            if (!fileResult) {
-                continue;
+            if (
+                !chunkingResult ||
+                chunkingResult.length !== scanRepo.length
+            ) {
+
+                throw new ApiError(
+                    500,
+                    "Chunking result does not match scanned files"
+                );
             }
 
-            const fileChunks = fileResult.chunks;
 
-            // --------------------------------------------------------
-            // Create CodeChunk records
-            // --------------------------------------------------------
+            // ====================================================
+            // 11. Generate embeddings
+            // ====================================================
 
-            for (let chunkIndex = 0; chunkIndex < fileChunks.length; chunkIndex++) {
+            const allChunks = chunkingResult.flatMap(
+                (file) => file.chunks || []
+            );
 
-                const chunk = fileChunks[chunkIndex];
 
-                // Find corresponding embedding
-                const embeddingIndex = allChunks.indexOf(chunk);
+            console.log(
+                "Total chunks:",
+                allChunks.length
+            );
 
-                const chunkEmbedding = embedding[embeddingIndex];
 
-                if (!chunkEmbedding) {
-                    console.log(
-                        "Embedding not found for chunk:",
-                        chunkIndex
+            if (allChunks.length === 0) {
+
+                throw new ApiError(
+                    400,
+                    "No code chunks were generated"
+                );
+            }
+
+
+            console.log(
+                "Generating embeddings..."
+            );
+
+
+            const embeddings =
+                await EmbeddingService(allChunks);
+
+
+            console.log(
+                "Embeddings generated:",
+                embeddings.length
+            );
+
+
+            // ====================================================
+            // 12. Validate embedding count
+            // ====================================================
+
+            if (embeddings.length !== allChunks.length) {
+
+                throw new ApiError(
+                    500,
+                    `Embedding count mismatch. Chunks: ${allChunks.length}, Embeddings: ${embeddings.length}`
+                );
+            }
+
+
+            // ====================================================
+            // 13. Save ScanFile + CodeChunk
+            // ====================================================
+
+            let globalChunkIndex = 0;
+
+
+            for ( let fileIndex = 0; fileIndex < scanRepo.length; fileIndex++) {
+
+                const filePath = scanRepo[fileIndex];
+
+                const fileResult =
+                    chunkingResult[fileIndex];
+
+
+                if (!fileResult) {
+                    console.warn(
+                        `No chunking result for file: ${filePath}`
                     );
 
                     continue;
                 }
 
-                // Convert embedding array into PostgreSQL vector
-                const vectorString = `[${chunkEmbedding.join(",")}]`;
 
-                // ----------------------------------------------------
-                // Create CodeChunk
-                // ----------------------------------------------------
+                const fileChunks = fileResult.chunks || [];
 
-                await prisma.$executeRaw`
-                    INSERT INTO "CodeChunk"
-                    (
-                        "id",
-                        "scanId",
-                        "projectId",
-                        "scanFileId",
-                        "chunkIndex",
-                        "content",
-                        "language",
-                        "embedding",
-                        "createdAt"
-                    )
-                    VALUES
-                    (
-                        gen_random_uuid(),
-                        ${scan.id},
-                        ${project.id},
-                        ${scanFile.id},
-                        ${chunkIndex},
-                        ${chunk},
-                        ${"javascript"},
-                        ${vectorString}::vector,
-                        NOW()
-                    )
-                `;
+
+                // ==================================================
+                // Detect programming language
+                // ==================================================
+
+                const language = detectLanguage(filePath);
+
+
+                // ==================================================
+                // Create ScanFile
+                // ==================================================
+
+                const scanFile =
+                    await prisma.scanFile.create({
+                        data: {
+                            scanId: scan.id,
+                            projectId: project.id,
+                            filePath: filePath,
+                            language: language,
+                            fileSize: 0,
+                        },
+                    });
+
 
                 console.log(
-                    `CodeChunk ${chunkIndex} saved`
+                    "ScanFile created:",
+                    scanFile.id
+                );
+
+
+                // ==================================================
+                // Save chunks
+                // ==================================================
+
+                for ( let chunkIndex = 0; chunkIndex < fileChunks.length; chunkIndex++ ) {
+
+                    const chunk = fileChunks[chunkIndex];
+
+
+                    // ----------------------------------------------
+                    // Get embedding using global index
+                    // ----------------------------------------------
+
+                    const chunkEmbedding = embeddings[globalChunkIndex];
+
+
+                    if (!chunkEmbedding) {
+
+                        throw new ApiError(
+                            500,
+                            `Embedding not found for chunk ${globalChunkIndex}`
+                        );
+                    }
+
+
+                    // ----------------------------------------------
+                    // Convert embedding to pgvector format
+                    // ----------------------------------------------
+
+                    const vectorString = `[${chunkEmbedding.join(",")}]`;
+
+
+                    // ----------------------------------------------
+                    // Insert CodeChunk
+                    // ----------------------------------------------
+
+                    await prisma.$executeRaw`
+                        INSERT INTO "CodeChunk"
+                        (
+                            "id",
+                            "scanId",
+                            "projectId",
+                            "scanFileId",
+                            "chunkIndex",
+                            "content",
+                            "language",
+                            "embedding",
+                            "createdAt"
+                        )
+                        VALUES
+                        (
+                            gen_random_uuid(),
+                            ${scan.id},
+                            ${project.id},
+                            ${scanFile.id},
+                            ${chunkIndex},
+                            ${chunk},
+                            ${language},
+                            ${vectorString}::vector,
+                            NOW()
+                        )
+                    `;
+
+
+                    console.log(
+                        `CodeChunk ${globalChunkIndex} saved`
+                    );
+
+
+                    globalChunkIndex++;
+                }
+            }
+
+
+            // ====================================================
+            // 14. Verify everything was processed
+            // ====================================================
+
+            if (
+                globalChunkIndex !== allChunks.length
+            ) {
+
+                throw new ApiError(
+                    500,
+                    `Not all chunks were processed. Expected: ${allChunks.length}, Processed: ${globalChunkIndex}`
                 );
             }
-        }
 
-        // ============================================================
-        // Mark scan as completed
-        // ============================================================
 
-        await prisma.scan.update({
-            where: {
-                id: scan.id
-            },
-            data: {
-                status: "COMPLETED",
-                completedAt: new Date()
-            }
-        });
+            // ====================================================
+            // 15. Mark scan as completed
+            // ====================================================
 
-        // ============================================================
-        // 6. Send response
-        // ============================================================
-
-        res.status(200).json(
-            new ApiResponse(
-                200,
-                {
-                    cloneUrl,
-                    repoPath,
-                    userId,
-                    projectId: project.id,
-                    scanId: scan.id,
-                    repositoryName,
-                    filesProcessed: scanRepo.length,
-                    chunksProcessed: allChunks.length,
-                    embeddingsProcessed: embedding.length
+            await prisma.scan.update({
+                where: {
+                    id: scan.id,
                 },
-                "Successfully processed repository"
-            )
-        );
+
+                data: {
+                    status: "COMPLETED",
+                    completedAt: new Date(),
+                },
+            });
+
+
+            console.log(
+                "=========================================="
+            );
+
+            console.log( "SCAN COMPLETED SUCCESSFULLY" );
+
+            console.log("Scan ID:", scan.id);
+
+            console.log(  "Files:", scanRepo.length );
+
+            console.log( "Chunks:", allChunks.length );
+
+            console.log(  "Embeddings:", embeddings.length );
+
+            console.log( "==========================================" );
+
+
+            // ====================================================
+            // 16. Send response
+            // ====================================================
+
+            return res.status(200).json(
+                new ApiResponse(
+                    200,
+                    {
+                        cloneUrl,
+                        repoPath,
+                        userId,
+
+                        projectId: project.id,
+                        scanId: scan.id,
+
+                        repositoryName,
+
+                        filesProcessed:
+                            scanRepo.length,
+
+                        chunksProcessed:
+                            allChunks.length,
+
+                        embeddingsProcessed:
+                            embeddings.length,
+                    },
+
+                    "Successfully processed repository"
+                )
+            );
+
+
+        } catch (error) {
+
+            // ====================================================
+            // 17. Mark scan as FAILED
+            // ====================================================
+
+            console.error(
+                "Repository processing failed:",
+                error
+            );
+
+
+            try {
+
+                await prisma.scan.update({
+                    where: {
+                        id: scan.id,
+                    },
+
+                    data: {
+                        status: "FAILED",
+                        completedAt: new Date(),
+                    },
+                });
+
+            } catch (updateError) {
+
+                console.error(
+                    "Failed to update scan status:",
+                    updateError
+                );
+            }
+
+
+            // ====================================================
+            // 18. Re-throw error
+            // ====================================================
+
+            throw error;
+        }
     }
 );
+
+
+// ============================================================
+// Language Detection
+// ============================================================
+
+function detectLanguage(
+    filePath: string
+): string {
+
+    const extension =
+        filePath
+            .split(".")
+            .pop()
+            ?.toLowerCase();
+
+
+    switch (extension) {
+
+        case "js":
+        case "jsx":
+            return "javascript";
+
+        case "ts":
+        case "tsx":
+            return "typescript";
+
+        case "py":
+            return "python";
+
+        case "java":
+            return "java";
+
+        case "cpp":
+        case "cc":
+        case "cxx":
+            return "cpp";
+
+        case "c":
+            return "c";
+
+        case "cs":
+            return "csharp";
+
+        case "go":
+            return "go";
+
+        case "rs":
+            return "rust";
+
+        case "php":
+            return "php";
+
+        case "rb":
+            return "ruby";
+
+        case "kt":
+            return "kotlin";
+
+        case "swift":
+            return "swift";
+
+        case "sql":
+            return "sql";
+
+        case "html":
+            return "html";
+
+        case "css":
+            return "css";
+
+        case "scss":
+            return "scss";
+
+        case "json":
+            return "json";
+
+        case "yaml":
+        case "yml":
+            return "yaml";
+
+        case "md":
+            return "markdown";
+
+        case "sh":
+            return "shell";
+
+        default:
+            return "unknown";
+    }
+}
+
+
+// ============================================================
+// Export
+// ============================================================
 
 export {
     RepoRequest
 };
-
-
-
-
-
-
-
-
-
-
-
-
-                         
-                         
-//                          GitHub Repository
-//                                 ↓
-//                          Clone
-//                                 ↓
-//                          Scan files
-//                                 ↓
-//                          Chunk files
-//                                 ↓
-//                          Generate embeddings
-//                                 ↓
-//                          Create Project
-//                                 ↓
-//                          Create Scan
-//                                 ↓
-//                          Create ScanFile
-//                                 ↓
-//                          Create CodeChunk
-//                                 ↓
-//                          Save embedding vector
-//                                 ↓
-//                          PostgreSQL + pgvector
-

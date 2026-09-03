@@ -15,7 +15,7 @@ app.use(
   })
 );
 
-app.use(express.json({ limit: "16kb" })); // data coming in json form frontend it could be anything
+app.use(express.json({ limit: "5mb" })); // data coming in json form frontend it could be anything
 
 app.use( express.urlencoded({ extended: true, limit: "13kb", }) ); 
 // data coming in url form frontend it could be anything (obj inside obj)
