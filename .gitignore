@@ -4,6 +4,9 @@
 
 **/dist/
 **/build/
+**/LLM_Base/
+**/LLM_Base
+
 
 
 **/.env
