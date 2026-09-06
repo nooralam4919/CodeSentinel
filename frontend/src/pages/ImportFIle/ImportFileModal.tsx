@@ -2,8 +2,7 @@ import { useState } from "react";
 
 import Button from "../../components/common/Button";
 import Input from "../../components/common/Input";
-import FileUpload from "../../hooks/FileUpload";
-import { StartScaning } from "../../components/layout/StartScaning";
+import FileUpload from "../../services/fileUpload.service";
 
 type ImportFileModalProps = {
     onClose: () => void;

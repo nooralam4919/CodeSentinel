@@ -5,7 +5,7 @@ dotenv.config({
     path: './.env'
 });
 
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 4000
 
 app.get('/', (req, res) => {
     res.json({message: "this is the backend"});

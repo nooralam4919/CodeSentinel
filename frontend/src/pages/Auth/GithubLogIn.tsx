@@ -1,5 +1,5 @@
 import Button from "../../components/common/Button";
-import useGithub from "../../hooks/useGithub";
+import useGithub from "../../services/github.service.ts"
 
 export default function GithubLogin() {
     const { gitlogin } = useGithub();

@@ -1,5 +1,5 @@
 import LoginForm from "../../components/auth/LoginForm";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../services/auth.service";
 
 export default function Login() {
 

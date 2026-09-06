@@ -1,7 +1,7 @@
 import RegisterForm from "../../components/auth/RegisterForm";
 // import { ShieldLogo } from "../../components/layout/Header";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../services/auth.service.ts";
 
 
 export default function Register() {

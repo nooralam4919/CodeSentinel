@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useRepository } from "../../hooks/useRepository";
+import { useRepository } from "../../services/useRepository.service.ts";
 
 interface Repository {
     id: number;

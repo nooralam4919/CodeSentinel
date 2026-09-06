@@ -1,9 +1,8 @@
 import { Link } from "react-router-dom";
 import Button from "../../components/common/Button";
-import { useState } from "react";
-import ImportFileModal from "../ImportFIle/ImportFileModal.tsx"
+import { useState } from "react"
 import { useNavigate } from "react-router-dom";
-import SelectRepository from "../../../src/components/auth/SelectRepository.tsx";
+import SelectRepository from "../Repository/RepositoryDetails.tsx";
 
 const features = [
     {
