@@ -46,6 +46,12 @@ import reviewRouter from './routes/review.routes.js'
 app.use("/api/user/agent", reviewRouter);
 
 
+
+import quaryRouter from "./routes/Quary/Quary.Router.js"
+app.use("/api/v1/agentreview", quaryRouter);
+
+
+
 // Global error handler
 
 
