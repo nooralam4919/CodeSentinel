@@ -1,9 +1,18 @@
 import prisma from "../lib/prisma.js";
 
-export const vectorSearch = async ( queryVector: number[], limit: number = 5 ) => {
+type VectorSearchResult = {
+    id: number;
+    content: string;
+    distance: number;
+};
+
+export const vectorSearch = async (
+    queryVector: number[],
+    limit: number = 5
+) => {
     const vector = `[${queryVector.join(",")}]`;
 
-    const results = await prisma.$queryRaw`
+    const results = await prisma.$queryRaw<VectorSearchResult[]>`
         SELECT
             id,
             content,

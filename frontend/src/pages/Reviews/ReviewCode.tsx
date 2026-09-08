@@ -199,7 +199,7 @@ export default function ReviewCode({ outPut }: ReviewCodeProps) {
                                     text-slate-300
                                 "
                             >
-                                {outPut.data}
+                                {outPut?.data?.response ?? JSON.stringify(outPut?.data)}
                             </p>
                         ) : (
                             <div className="flex flex-col items-center py-8">
