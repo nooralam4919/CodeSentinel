@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import {baseLLM} from "../llms/BaseLLM.js"
+import {generateAnswer} from "../llms/BaseLLM.js"
 
 export const llmResponseAns = async (req: Request, res: Response) => {
     try {
@@ -11,7 +11,7 @@ export const llmResponseAns = async (req: Request, res: Response) => {
 
         // Call LLM here...
 
-        const answer = await baseLLM(question, context);
+        const answer = await generateAnswer(question, context);
 
 
     } catch (error) {
