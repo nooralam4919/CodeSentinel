@@ -3,16 +3,8 @@ import { ToolNode } from "@langchain/langgraph/prebuilt";
 import { llm, tools, } from "./GroqAI.js";
 
 
-// ===============================
-// Tool Node
-// ===============================
-
 const toolNode = new ToolNode(tools);
 
-
-// ===============================
-// Base LLM / Agent
-// ===============================
 
 async function baseLLM(state: any) {
 
@@ -28,55 +20,29 @@ async function baseLLM(state: any) {
 }
 
 
-// ===============================
-// Conditional Edge
-// ===============================
-
 function conditionalEdge(state: any) {
-
     const lastMessage = state.messages.at(-1);
 
     if (lastMessage?.tool_calls?.length) {
-
         console.log("Tavily tool calling...");
-
         return "tools";
     }
-
     return "__end__";
 }
 
 
-// ===============================
-// LangGraph Workflow
-// ===============================
-
 const workflow = new StateGraph(MessagesAnnotation)
 
     .addNode("agent", baseLLM)
-
     .addNode("tools", toolNode)
-
     .addEdge("__start__", "agent")
-
     .addEdge("tools", "agent")
-
-    .addConditionalEdges(
-        "agent",
-        conditionalEdge
-    );
+    .addConditionalEdges( "agent", conditionalEdge );
 
 
-// ===============================
-// Compile
-// ===============================
 
 const app = workflow.compile();
 
-
-// ===============================
-// Generate Answer
-// ===============================
 
 export const generateAnswer = async ( question: string, context: string ) => {
 
@@ -88,37 +54,37 @@ export const generateAnswer = async ( question: string, context: string ) => {
                 role: "system",
 
                 content: `
-                        You are CodeSentinel, an AI assistant
-                        for understanding software codebases.
+                You are CodeSentinel, an AI assistant for understanding and working with software projects.
 
-                        You have access to:
+                IMPORTANT PRIORITY:
 
-                        1. Relevant code retrieved from the
-                        user's repository.
+                The provided Repository Context comes from the user's current project.
+                For any question related to the project, repository, code, files, functions,
+                architecture, implementation, bugs, or project behavior, ALWAYS use the
+                Repository Context as the primary source.
 
-                        2. Tavily web search for external
-                        or current information.
+                Do not invent or assume project-specific information that is not present
+                in the Repository Context.
 
-                        Rules:
+                If the Repository Context contains the answer:
+                - Answer directly using that information.
+                - Explain the relevant code clearly.
+                - Mention file names, functions, or code sections when available.
 
-                        - For questions about the repository,
-                        use the provided repository context first.
+                If the question is NOT related to the user's project:
+                - You can answer it as a normal general question.
 
-                        - Do not invent code or information.
+                If the question is related to the project but the Repository Context does
+                not contain enough information:
+                - Clearly say that the available project context is not sufficient.
+                - Do not pretend that you know the project's implementation.
+                - If external or current information is useful, you may use Tavily.
 
-                        - If the repository context is not enough
-                        and the question requires external/current
-                        information, use Tavily search.
+                You can also answer general programming, technical, conceptual,
+                and everyday questions even when they are not related to the project.
 
-                        - Explain code clearly and simply.
-
-                        - If possible, mention the relevant file
-                        or code section.
-
-                        Repository Context:
-
-            ${context}
-`
+                Repository Context:
+                ${context}`
             },
 
             {
@@ -134,3 +100,5 @@ export const generateAnswer = async ( question: string, context: string ) => {
 
     return result.messages.at(-1)?.content;
 };
+
+

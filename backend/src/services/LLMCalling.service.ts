@@ -1,7 +1,7 @@
 const llmCallTogetHumanAns = async(questionForLLM: any, databaseContext: any) => {
     try{
             const response = await fetch(
-                "http://review-engine/llmcall/forans",
+                "http://review-engine:9000/llmcall/forans",
                 {
                     method: "post",
                     headers:{
@@ -14,15 +14,17 @@ const llmCallTogetHumanAns = async(questionForLLM: any, databaseContext: any) =>
                 }
                 
             )
-
-            const data = await response.json();
+            console.log("===============================================================");
+            console.log("Status:", response.status);
+            const text = await response.text();
+            console.log("Response:", text);
 
             if(!response.ok)
             {
-                console.log("the data comming from llm call", data);
+                console.log("the data comming from llm call", text);
                 console.log("response form llm", response.status);
                 
-                throw new Error( data.message || "Data is not present in question chunking" );
+                throw new Error("Data is not present in question chunking" );
             }
     } catch (error) {
         console.log("error in llm api call", error);

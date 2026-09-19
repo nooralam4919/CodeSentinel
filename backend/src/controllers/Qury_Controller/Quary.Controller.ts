@@ -35,7 +35,6 @@ const QuaryRouterController = asyncHandler(async(req: Request, res: Response) =>
     const callingLLMforAns = await llmCallTogetHumanAns(QuestionEmbedding, context);
 
 
-
     res.status(200).json(
         new ApiResponse(
             200,

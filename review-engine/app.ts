@@ -24,7 +24,7 @@ import agentReviewRouter from "./Router/AgentReviewRouter.Router.js"
 app.use("/questionchunk", agentReviewRouter);
 
 import llmcallingForHumanMessage from "./Router/LLMresponse.Router.js"
-app.use("llmcall", llmcallingForHumanMessage);
+app.use("/llmcall", llmcallingForHumanMessage);
 
 
 
