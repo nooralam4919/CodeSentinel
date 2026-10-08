@@ -9,15 +9,15 @@ export const scanningController = async ( req: Request, res: Response) => {
 
         if (!filePath || !content) {
             return res.status(400).json({
-                message: "filePath and content are required"
+                message: "filePath and content are required in the request body"
             });
         }
 
-        // console.log("Processing file:", filePath);
+        console.log("Processing file 0>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>: ", filePath);
 
         const response = await chunkText(content);
 
-        console.log("Chunks:", response);
+        // console.log("Chunks:", response);  — removed: floods terminal on large repos
 
         return res.status(200).json({
             statusCode: 200,
